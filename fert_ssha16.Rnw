@@ -1,0 +1,284 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{natbib}
+\usepackage{url}
+\usepackage{a4wide}
+
+%\usepackage[figuresonly]{endfloat}
+%\renewcommand{\efloatseparator}{\mbox{}}
+
+\bibliographystyle{apalike}
+
+\title{The effect of socioeconomic status on marital fertility during 
+the demographic transition, northern Sweden 1821--1950}
+\author{Göran Broström}
+\date{3 October, 2016}
+
+\begin{document}
+
+\maketitle
+
+\section*{Introduction}
+The impact of the family's socioeconomic status at marriage
+on later child births during the demographic transition (1821--1950) is
+studied. Special attention is paid to whether the transition to a low
+fertility regime  
+is uniform over socioeconomic class, and if not, in which order did the transition 
+take place. The study area is Skellefteå, a large rural region in the north of
+Sweden.  
+
+\citet{kom97} discussed contemporary explanation models of the fertility
+transition and argued that there cannot be one explanation alone.
+More recent studies of Swedish circumstances were given by \citet{drsc14}
+and \citet{tbdr14} and \citet{bras14} presented a similar study from the
+Netherlands. One convincing theory is that the fertility decline was a
+necessary result of the mortality decline, and in the full paper we will
+follow up on that track. 
+
+%% Note that we use 'data/kids.rda' now!!
+%' 
+%' <<trends, fig.height = 4, fig.cap = "No.of births by SOCPO and birth cohort.",echo=FALSE,message=FALSE>>=
+%' source("R/cohRates.R")
+%' out <- cohRates(deaths = FALSE, rate = FALSE)
+%' x <- seq(1821, 1901, by = 10)
+%' cols = c("black", "blue", "darkgreen", "red")
+%' plot(x, out[1, seq_along(x)], type = "b", ylim = c(0, 7), col = cols[1], ylab = "No. of births",
+%'      xlab = "Mother's birth year")
+%' 
+%' for(i in 2:4){
+%'     lines(x, out[i, seq_along(x)], col = cols[i], lty = i)
+%'     points(x, out[i, seq_along(x)], pch = i, col = cols[i])
+%' }
+%' legend("topright", legend = 1:4, col = cols, lty = 1:5, pch = 1:5)    
+%' abline(h = 0)
+%' abline(h = 2.1, lty = 3)
+%' @
+%' 
+%' Only counting births surviving the first year, see Figure~\ref{fig:trends_deaths}:
+%' 
+%' <<trends_deaths, fig.height = 4, fig.cap = "No of births surviving age 15 by SOCPO and birth cohort.",echo=FALSE>>=
+%' source("R/cohRates.R")
+%' out <- cohRates(deaths = TRUE, surv.lim = 15, rate = FALSE)
+%' x <- seq(1821, 1901, by = 10)
+%' cols = c("black", "blue", "darkgreen", "red")
+%' plot(x, out[1, seq_along(x)], type = "b", ylim = c(0, 7), col = cols[1], ylab = "No. of surv. births", xlab = "Mother's birth year.")
+%' 
+%' for(i in 2:4){
+%'     lines(x, out[i, seq_along(x)], col = cols[i], lty = i)
+%'     points(x, out[i, seq_along(x)], pch = i, col = cols[i])
+%' }
+%' legend("topright", legend = 1:4, col = cols, lty = 1:5, pch = 1:5)    
+%' abline(h = 0)
+%' abline(h = 2.1, lty = 3)
+%' @
+%' 
+
+\section*{Models}
+The statistical modeling is naturally done in the framework of
+counting (birth) processes, but there are still choices to contemplate:
+Choice of time scale, and how to handle the dynamic aspects of the counting
+process.
+
+\subsection*{Fertility as a counting process}
+
+We define
+
+\begin{equation*}
+\{N_i(t), m_i \le t \le 50\}, \quad i \in \text{mother's ID}
+\end{equation*}
+as the \emph{number of births before and including age $t$ and after
+  marriage at age $m_i$} for woman No.\
+$i$. By age we mean \emph{exact age}, measured by a precision of a day, but with
+\emph{time unit year}. Thus $\{N_i, \, i = 1, 2, \ldots\}$ are \emph{counting processes} with jumps of size
+one (except for multiple births) at the age of the mother at deliveries. As
+an example, see Figure~\ref{fig:countbir} for the marital fertility history of mother No.\ 55: She married at age 22, emigrated at age 38, and in between she had five births. See
+\citet{aalen08} for details on the counting process theory.
+
+<<countbir, echo=FALSE,fig.height=3, fig.cap = "Birth history as a counting process, woman with id 55.">>=
+source("R/plotid.R")
+load("data/kids.rda")
+plotid(kids, 55)
+@
+% $N(t)$ is a \emph{right-continuous} function, meaning essentially that at
+% jump points, the value is the larger of the two possible values. $N(t-)$
+% denotes its \emph{left-continuous} counterpart, that is, it is defined as the
+% number of births up to but \emph{not including} age $t$. 
+
+% \subsection*{Time scales}
+% 
+% The time scale illustrated above is \emph{age}, but more common in
+% contemporary research is to have the marriage as a
+% starting point for time to first birth, and then reset the clock to zero at
+% each birth. A third possibility is to have time since marriage as
+% the scale, without resetting the clock at births.
+% 
+% It is important to control for \emph{age at marriage}.
+
+%' <<compro, echo=FALSE, fig.height=3,message=FALSE>>=
+%' library(eha)
+%' opar <- par(mfrow=c(1, 3))
+%' fit1 <- coxph(Surv(enter, exit, event) ~ strata(socpo), data = kids)
+%' plot(survfit(fit1), mark.time = FALSE, col = 1:5, lty = 1:4, fun = "cumhaz", xlab = "Age", ylim = c(0, 11), xlim = c(15, 50))
+%' abline(h = 0)
+%' fit2 <- coxph(Surv(enter - marAge, exit - marAge, event) ~ strata(socpo), data = kids)
+%' plot(survfit(fit2), mark.time = FALSE, col = 1:4, lty = 1:4, fun = "cumhaz", xlim = c(0, 35), xlab = "Time since marriage", ylim = c(0, 6.5))
+%' legend("bottomright", levels(fertil$socpo), col = 1:5, lty = 1:5)
+%' abline(h = 0)
+%' fit3 <- coxph(Surv(exit - enter, event) ~ strata(socpo), data = kids[kids$lopnr > 1, ])
+%' plot(survfit(fit3), mark.time = FALSE, col = 1:4, lty = 1:4, fun = "cumhaz", xlim = c(0, 10), xlab = "Time since previous birth", ylim = c(0, 2.2))
+%' abline(h = 0)
+%' par(opar)
+%' @
+
+
+\section*{Data}
+
+Data come from The Demographic Data Base, Centre for Demographic and Ageing
+Research ({\sc Cedar}) at Umeå University, Sweden, and cover the Skellefteå region,
+situated in the north of Sweden \citep{wee16}. All women, ever married and born between 1 January 1821 and 31 December 1935 and present in the region at age 15, are included in the
+data set. For each woman, the exact timing of her deliveries (if any) after
+the onset of the first marriage are recorded.
+
+Central covariates are family {\sc Hisclass}, {\tt social branch} (with categories {\tt official}, {\tt farm\-ing}, {\tt business} and {\tt worker}), {\tt mother's age at marriage}, and mother's {\tt birthdate}. The first six rows in our data file are (with selected columns) shown in Table~\ref{tab:sixrow}.
+<<sixrow,echo=FALSE,results='asis'>>=
+load("data/kids.rda")
+kids$event <- as.logical(kids$event)
+byt <- kids$marStart < 15
+kids$marStart[byt] <- kids$enter[byt]
+library(xtable)
+fert1 <- kids[kids$lopnr > 1, ]
+fert1$marAge <- round(fert1$marStart, 3)
+fert1$enter <- round(fert1$enter, 3)
+fert1$exit <- round(fert1$exit, 3)
+#fert1 <- fert1[fert1$socpo != "1", ]
+#fert1$farmer <- as.numeric(fert1$socpo == "2")
+#fert1$birthdate <- fert1$birthdate
+x <- head(fert1[, c("id", "marAge", "birthdate", "hisclass", "socBranch", "enter", "exit", "event")])
+print(xtable(x, digits = c(0,0, 3,3,0,0, 3, 3, 0), caption = "First six records from the data file.", label = "tab:sixrow"), include.rownames = FALSE)
+@
+Woman No.\ 55 got married at age 21.816 (years), was followed until age 38.457 (end of marriage),
+and she had five births.
+ The last interval (almost) always ends with no birth ({\tt event = FALSE}): Women are followed until age 50, end of marriage, or lost to follow-up, whichever comes first. Note that childless marriages are included.
+
+\section*{Analysis}
+
+The analysis of the above described counting process and data can be
+performed by
+\emph{Cox regression} (allowing \emph{left truncation}). The complication
+is the \emph{dynamic} nature of the
+process: The future and present depends on its history (meaning that it is
+\emph{not} a Poisson process). There are essentially two possibilities: (i)
+A \emph{shared frailty} (\emph{marginal}) model, or (ii) a \emph{dynamic}
+model, where the history is explicitly modeled. 
+
+% The first approach models
+% differences in fertility between women by including a random effect term for
+% each woman and averaging, while the second approach would explicitly include
+% (functions of) the process history, for instance \emph{number of previous
+%   births} and \emph{time since previous birth} (not always available).
+% Adding to this is the necessity to choose a time scale, see above.
+
+In this exposition I have chosen \emph{age} as time
+scale. Figure~\ref{fig:kollp} shows the results of a crude (no 'adjustment' for other covariates) exposure of the
+four social classes over five time periods, each two decades long. In the
+first period, 1851--1870, nothing much happens: Fertility is high in all
+classes and during the full fertile age period. In the next time period,
+1871--1890, we see a clear decrease in the {\tt official} and {\tt
+  business} classes. Then the {\tt farming} and {\tt business} classes go
+lower, while in the last two periods, 1911--1950, it is obvious that the
+{\tt farmers} remain on a relatively high level, especially in old ages,
+while the rest clearly adapts to a low-fertility pattern.    
+Differences in age at marriage for women play a fundamental role, of course. A
+quick analysis of age at marriage by {\tt socBranch} shows no big differences : Typical and average marriage ages lie between 26 and 26 years of age.
+
+
+
+
+<<kollp, fig.cap = "Cumulative intensities of births by social branch.", message = FALSE, echo = FALSE, fig.height = 5.5>>=
+source("R/addPer.R")
+library(skum)
+cols <- c("darkgreen", "blue", "black", "red")
+ltys <- c(2, 1, 6, 5)
+kids <- addPer(kids, seq(1851, 1951, by = 20))
+oldpar <- par(mfrow = c(2, 3))
+i = 0
+for (per in levels(kids$period)){
+    i = i + 1
+    fit <- coxph(Surv(enter, exit, event) ~ strata(socBranch), 
+                 data = kids[kids$period == per, ])
+    plot(survfit(fit), fun = "cumhaz", xlab = "Age", xlim = c(15, 50), ylim = c(0, 13),
+         main = per, col = cols, lty = ltys, lwd = 1.5)
+   
+}
+plot(1, 1, xlim = c(15, 50), ylim = c(0, 13), type = "n", axes = FALSE, xlab = "", ylab = "",
+     main = "")
+ legend("center", legend = levels(kids$socBranch), col = cols, lty = ltys, cex = 1.5, lwd = 1.5)
+par(oldpar)
+@
+
+%' <<kollphis, fig.cap = "Cumulative intensities of births by hisclass.", message = FALSE, echo = FALSE, fig.height = 5>>=
+%' ##source("R/addPer.R")
+%' ##library(skum)
+%' cols <- c("blue", "darkgreen", "black", "red", "brown", "magenta")
+%' ltys <- c(1, 2, 6, 5,7, 8)
+%' ##kids <- addPer(kids, seq(1851, 1951, by = 20))
+%' oldpar <- par(mfrow = c(2, 3))
+%' kids$hisclass <- cut(kids$hisclass, c(0, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5), labels = 1:6)
+%' i = 0
+%' for (per in levels(kids$period)){
+%'     i = i + 1
+%'     fit <- coxph(Surv(enter, exit, event) ~ strata(hisclass), 
+%'                  data = kids[kids$period == per, ])
+%'     plot(survfit(fit), fun = "cumhaz", xlab = "Age", xlim = c(15, 50), ylim = c(0, 13),
+%'          main = per, col = cols, lty = ltys, lwd = 1.5)
+%'    
+%' }
+%' plot(1, 1, xlim = c(15, 50), ylim = c(0, 13), type = "n", axes = FALSE, xlab = "", ylab = "",
+%'      main = "")
+%'  legend("center", legend = levels(kids$hisclass), col = cols, lty = ltys, cex = 1.4, lwd = 1.5)
+%' par(oldpar)
+%' @
+
+
+%\subsection*{Age at marriage}
+
+%<<ageatmarriage, results='asis', echo = FALSE>>=
+%fert1 <- kids[kids$lopnr == 2, ]
+%Age <- with(fert1, tapply(marStart, socBranch, mean))
+%xtable(as.matrix(Age, nrow = 1))
+%@
+
+\section*{Conclusion}
+
+The fertility decline starts in the upper classes ({\tt official} and {\tt
+  business}) in the decades prior to the turn of the century. The {\tt
+  farming} part of the population is characterized by a relatively high
+fertility in high ages until the end of the study period. It is also by far
+the largest group in the society, near 70 per cent are in the farming
+sphere on average over the study period. Towards the end of the period this
+share is decreasing markedly. 
+
+The effect of the declining infant and child mortality on fertility will be
+addressed in the full version of this report. There will also be a deeper
+discussion of more elaborate statistical models for describing and
+interpreting our findings and findings in general. Alternative
+classification schemes of socioeconomic status will also be considered,
+i.e., {\sc Hisclass}. 
+
+The work is done in the
+{\bf R} environment for statistical analysis \citep{cran},  with the package {\bf eha}
+\citep{eha,ehar12}.
+
+% A specific problem with fertility data and choice of time scale is the fact
+% that the intensity of a birth following a birth is practically zero for
+% about nine months. This is not a problem with the time scale resetting the
+% clock to zero at each birth, but on the other hand this one often gives a bad fit
+% to the proportional hazards model. This will also be dealt with in the
+% final paper.
+
+\bibliography{surv.bib}
+
+\end{document}
