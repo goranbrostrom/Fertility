@@ -1,0 +1,16 @@
+G. Broström. The effect of socioeconomic status on marital fertility during
+the demographic transition, northern Sweden 1821-1950. 
+
+The change of impact of the family's socioeconomic status at marriage on
+later child births during the demographic transition is studied on data
+from Umeå (1901-1950) and Skellefteå (1821-1950), two regions in the north
+of Sweden. The statistical modeling is done in the framework of counting
+(birth) processes, with a couple of choices to contemplate: Which time
+scale, and how to handle the dynamic aspects of the counting process. The
+theoretic framework in the analysis embraces counting processes and Cox
+regression with dynamic covariates. Data come from The Demographic Data
+Base, Centre for Demographic and Ageing Research at Umeå University,
+Sweden. All women in the data set, married in the regions and born between
+1 January 1801 and 31 December 1900, are included in the analysis. For each
+woman, the exact timing of her deliveries (if any) after the onset of the
+first marriage are recorded.  
