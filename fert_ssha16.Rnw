@@ -21,14 +21,18 @@ the demographic transition, northern Sweden 1821--1950}
 
 \maketitle
 
+\begin{abstract}
+
+\end{abstract}
+
 \section*{Introduction}
+
 The impact of the family's socioeconomic status at marriage
 on later child births during the demographic transition (1821--1950) is
 studied. Special attention is paid to whether the transition to a low
 fertility regime  
 is uniform over socioeconomic class, and if not, in which order did the transition 
-take place. The study area is Skellefteå, a large rural region in the north of
-Sweden.  
+take place. The study area consists of two regions in northern Sweden, Skellefteå and Umeå.
 
 \citet{kom97} discussed contemporary explanation models of the fertility
 transition and argued that there cannot be one explanation alone.
@@ -76,13 +80,63 @@ follow up on that track.
 %' @
 %' 
 
-\section*{Models}
+\section{The study area}
+
+\subsection{Skellefteå}
+
+At the outset of the study the region consisted of one large rural parish, Skellefteå. By 1900 three new parishes had been detached into separate units, but their populations are still included in the study.  The region was large, both in terms of
+area and of population. With an area of about 1700 square miles,
+Skellefteå was considerably larger than most rural parishes in Sweden. It
+was considered a one-day journey to travel from the northern to the
+southern border, and a ride from the coast to the more remote and sparsely
+populated parts of the parish in the west could take even longer,
+especially in wintertime. The main part of the population was, however,
+concentrated in the coastal area and in river valleys.  In the early 19th
+century the population size was around 6900, and it increased rapidly during the
+first half of the century. By 1850 it had reached to about 17\,000 and at the
+turn of the century it had further doubled. Despite the large increase in
+population, which was mainly the result of a high natural growth, the
+population density on the whole remained low \citep{as94}.
+
+Skellefteå was during the studied period a rural area with a mixed economy,
+based on animal husbandry, forestry and sidelines such as tar and saltpeter
+production. By the mid-19th century export of tar and lumber became an
+increasingly important part of the economy. The majority of the farmers in
+the region were smallholders and there were no large estates. Some small
+sawmills were established early in the century, but before 1900,
+industrialization had little impact on the local economy. In 1835,
+approximately 85 percent of the population made their living from
+farming. Although the distribution of economic resources was more uniform
+than in several other Swedish regions, the social stratification became
+more pronounced throughout the 19th century. The increasing
+proletarianization was mainly a consequence of rapid population growth. The
+number of farming households remained fairly stable, while the number of
+landless households increased. The socio-economic development was also
+influenced by two devastating subsistence crises in the region, in the
+1830s and in the 1860s \citep{eng05}.  
+
+Infant mortality was comparatively low. Fertility was high, not only by Swedish
+standards, but also in European comparison and there are no
+indications of family planning. Total fertility fluctuated around five
+children per woman and, although fertility did decline during the
+nineteenth century, the actual fertility transition occurred late in the
+district \citep{as94,coa86}. The rate of illegitimacy was low in comparison
+with many other parts of Northern Sweden, where frequent pre-nuptial
+conceptions and illegitimate births were common. The illegitimacy rate
+fluctuated between three and six per cent during the nineteenth century
+\citep{as94}.  
+
+\subsection{Umeå}
+
+The Umeå region is one of the newest in the collection of regions digitized at the Demographic Data Bbase, Umeå University. The covered time period is shorter than the one for the Skellefteå region in that registration starts around January 1, 1901.  
+
+\section{Models}
 The statistical modeling is naturally done in the framework of
 counting (birth) processes, but there are still choices to contemplate:
 Choice of time scale, and how to handle the dynamic aspects of the counting
 process.
 
-\subsection*{Fertility as a counting process}
+\subsection{Fertility as a counting process}
 
 We define
 
@@ -134,11 +188,11 @@ plotid(kids, 55)
 %' @
 
 
-\section*{Data}
+\section{Data}
 
 Data come from The Demographic Data Base, Centre for Demographic and Ageing
 Research ({\sc Cedar}) at Umeå University, Sweden, and cover the Skellefteå region,
-situated in the north of Sweden \citep{wee16}. All women, ever married and born between 1 January 1821 and 31 December 1935 and present in the region at age 15, are included in the
+situated in the north of Sweden \citep{wee16}, and the Umeå region, situated 100 km south of Skellefteå. All women, ever married and born between 1 January 1801 and 31 December 1935 and present in the region at age 15, are included in the
 data set. For each woman, the exact timing of her deliveries (if any) after
 the onset of the first marriage are recorded.
 
@@ -149,15 +203,15 @@ kids$event <- as.logical(kids$event)
 byt <- kids$marStart < 15
 kids$marStart[byt] <- kids$enter[byt]
 library(xtable)
-fert1 <- kids[kids$lopnr > 1, ]
+fert1 <- kids[kids$lopnr > 0, ]  ## KOLLA!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 fert1$marAge <- round(fert1$marStart, 3)
 fert1$enter <- round(fert1$enter, 3)
 fert1$exit <- round(fert1$exit, 3)
 #fert1 <- fert1[fert1$socpo != "1", ]
 #fert1$farmer <- as.numeric(fert1$socpo == "2")
 #fert1$birthdate <- fert1$birthdate
-x <- head(fert1[, c("id", "marAge", "birthdate", "hisclass", "socBranch", "enter", "exit", "event")])
-print(xtable(x, digits = c(0,0, 3,3,0,0, 3, 3, 0), caption = "First six records from the data file.", label = "tab:sixrow"), include.rownames = FALSE)
+x <- head(fert1[, c("id", "region", "marAge", "birthdate", "hisclass", "socBranch", "enter", "exit", "event")])
+print(xtable(x, digits = c(0,0, 0, 3,3,0,0, 3, 3, 0), caption = "First six records from the data file.", label = "tab:sixrow"), include.rownames = FALSE)
 @
 Woman No.\ 55 got married at age 21.816 (years), was followed until age 38.457 (end of marriage),
 and she had five births.
@@ -205,12 +259,12 @@ ltys <- c(2, 1, 6, 5)
 kids <- addPer(kids, seq(1851, 1951, by = 20))
 oldpar <- par(mfrow = c(2, 3))
 i = 0
-for (per in levels(kids$period)){
+for (pr in levels(kids$period)){
     i = i + 1
     fit <- coxph(Surv(enter, exit, event) ~ strata(socBranch), 
-                 data = kids[kids$period == per, ])
+                 data = kids[kids$period == pr, ])
     plot(survfit(fit), fun = "cumhaz", xlab = "Age", xlim = c(15, 50), ylim = c(0, 13),
-         main = per, col = cols, lty = ltys, lwd = 1.5)
+         main = pr, col = cols, lty = ltys, lwd = 1.5)
    
 }
 plot(1, 1, xlim = c(15, 50), ylim = c(0, 13), type = "n", axes = FALSE, xlab = "", ylab = "",
