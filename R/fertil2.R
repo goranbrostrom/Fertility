@@ -1,9 +1,10 @@
-fertil2 <- function(){
+ fertil2 <- function(){
     ## Expansion of 'fertil'; uses 'skum' instead of 'skel14'.
     ## Must be run from '..'! (see save at bottom)
+    ## Note also that we include Umeå and start 1800.99 instead of 1820.99! 
     
     library(skum) # loads 'eha' as well...
-    married <- obs[with(obs, birthdate > 1820.99 & region == "ske" &        ## NOTE
+    married <- skum::obs[with(skum::obs, birthdate > 1800.99 &        ## NOTE
                             birthdate < 1935 & sex == "female" &
                                 civst == "married"), ]
     married <- married[order(married$id, married$enter), ]
@@ -13,11 +14,11 @@ fertil2 <- function(){
                            "sluttyp", "birthdate", "enter", "exit", "socpo",
                            "hisclass", "socBranch", "socStatus")]
     ## We want them to be present sometime before age 20:
-    earlyBirds <- unique(obs$id[obs$enter < 20])
+    earlyBirds <- unique(skum::obs$id[skum::obs$enter < 20])
     married <- married[married$id %in% earlyBirds, ]
     married <- rc(married)
 
-    kids <- per[per$mid %in% married$id, c("id", "mid", "foddat", "doddat", "ab")]
+    kids <- skum::per[skum::per$mid %in% married$id, c("id", "mid", "region", "foddat", "doddat", "ab")]
     kids <- kids[kids$ab %in% c(0, 1, 3), ]
     ##return(kids)
     kids$birthdate <- as.numeric(toTime(kids$foddat))
@@ -85,10 +86,12 @@ fertil2 <- function(){
     kids <- rbind(kids, liv)
     kids <- kids[order(kids$id, kids$birthdate), ]
     kids <- rc(kids)
+    ##return(kids)
     ## And now put on childless married women (nomothers):
     ##return(nomothers)
     nm <- NROW(nomothers)
     nomo <- data.frame(id = nomothers$id,
+                       region = nomothers$region,
                        ab = rep(NA, nm),
                        birthdate = rep(NA, nm), 
                        deathdate = rep(NA, nm),
@@ -111,7 +114,7 @@ fertil2 <- function(){
     kids$birthdate <- kids$m.birthdate
     kids$m.birthdate <- NULL
     kids <- kids[!is.na(kids$socst), 
-                 c("id", "ch.id", "birthdate", "ch.birthdate", "deathdate",
+                 c("id", "ch.id", "region", "birthdate", "ch.birthdate", "deathdate",
                    "enter", "exit", "event", "socst", "marStart", "marEnd")]
     kids <- kids[order(kids$id, kids$ch.birthdate), ]
     kids <- rc(kids)
