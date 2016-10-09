@@ -131,10 +131,42 @@ fluctuated between three and six per cent during the nineteenth century
 The Umeå region is one of the newest in the collection of regions digitized at the Demographic Data Bbase, Umeå University. The covered time period is shorter than the one for the Skellefteå region in that registration starts around January 1, 1901.  
 
 \section{Models}
-The statistical modeling is naturally done in the framework of
+The statistical modeling is conveniently done in the framework of
 counting (birth) processes, but there are still choices to contemplate:
 Choice of time scale, and how to handle the dynamic aspects of the counting
-process.
+process. 
+
+<<getdata>>=
+load("data/kids.rda")
+library(skum)
+library(eha)
+kids <- age.window(kids, c(20, 50))
+kids <- kids[kids$birthdate > 1801, ]
+N <- c(.460, .431, .395, .322, .167, .024)
+V <- c(0.0, -0.279, -0.667, -1.042, -1.414, -1.671)
+## Constants in the Coale-Trussell model [20(5)50]
+## Put on 'cohort':
+kids$cohort <- cut(kids$birthdate, seq(1801, 1941, by = 20), labels = c("1821-1840", "1841-1860", "1861-1880", "1881-1900", "1901-1920", "1921-1940", "1941-1960"))
+source("R/addPer.R")
+kids <- addPer(kids, cuts = c(1821, 1851, 1881, seq(1901, 1951, by = 10)))
+kids$marAge <- cut(kids$marStart, seq(15, 50, by = 5))
+source("R/ageGroup.R")
+kids <- ageGroup(kids, seq(20, 50, by = 5))
+kids$exposure <- kids$exit - kids$enter
+
+kTab <- aggregate(kids[, c("event", "exposure")],
+                  kids[, c("age", "period", "cohort", "marAge", "hisclass", "socBranch", "region")],
+                  FUN = sum)
+kTab$age <- factor(kTab$age, labels = c("20-24", "25-29", "30-34",
+                                        "35-39", "40-44", "45-49"))
+kTab$N <- 0
+kTab$V <- 0
+for (i in 1:6){
+    who <- kTab$age == levels(kTab$age)[i]
+    kTab$N[who] <- N[i]
+    kTab$V[who] <- V[i]
+}
+@
 
 \subsection{Fertility as a counting process}
 
@@ -153,7 +185,7 @@ an example, see Figure~\ref{fig:countbir} for the marital fertility history of m
 
 <<countbir, echo=FALSE,fig.height=3, fig.cap = "Birth history as a counting process, woman with id 55.">>=
 source("R/plotid.R")
-load("data/kids.rda")
+
 plotid(kids, 55)
 @
 % $N(t)$ is a \emph{right-continuous} function, meaning essentially that at
@@ -198,7 +230,7 @@ the onset of the first marriage are recorded.
 
 Central covariates are family {\sc Hisclass}, {\tt social branch} (with categories {\tt official}, {\tt farm\-ing}, {\tt business} and {\tt worker}), {\tt mother's age at marriage}, and mother's {\tt birthdate}. The first six rows in our data file are (with selected columns) shown in Table~\ref{tab:sixrow}.
 <<sixrow,echo=FALSE,results='asis'>>=
-load("data/kids.rda")
+##load("data/kids.rda")
 kids$event <- as.logical(kids$event)
 byt <- kids$marStart < 15
 kids$marStart[byt] <- kids$enter[byt]
@@ -216,6 +248,8 @@ print(xtable(x, digits = c(0,0, 0, 3,3,0,0, 3, 3, 0), caption = "First six recor
 Woman No.\ 55 got married at age 21.816 (years), was followed until age 38.457 (end of marriage),
 and she had five births.
  The last interval (almost) always ends with no birth ({\tt event = FALSE}): Women are followed until age 50, end of marriage, or lost to follow-up, whichever comes first. Note that childless marriages are included.
+
+Tabulating data \citep{gb85}.
 
 \section*{Analysis}
 
@@ -256,18 +290,18 @@ source("R/addPer.R")
 library(skum)
 cols <- c("darkgreen", "blue", "black", "red")
 ltys <- c(2, 1, 6, 5)
-kids <- addPer(kids, seq(1851, 1951, by = 20))
+##kids <- addPer(kids, seq(1851, 1951, by = 20))
 oldpar <- par(mfrow = c(2, 3))
 i = 0
 for (pr in levels(kids$period)){
     i = i + 1
     fit <- coxph(Surv(enter, exit, event) ~ strata(socBranch), 
                  data = kids[kids$period == pr, ])
-    plot(survfit(fit), fun = "cumhaz", xlab = "Age", xlim = c(15, 50), ylim = c(0, 13),
+    plot(survfit(fit), fun = "cumhaz", xlab = "Age", xlim = c(20, 50), ylim = c(0, 10),
          main = pr, col = cols, lty = ltys, lwd = 1.5)
    
 }
-plot(1, 1, xlim = c(15, 50), ylim = c(0, 13), type = "n", axes = FALSE, xlab = "", ylab = "",
+plot(1, 1, xlim = c(20, 50), ylim = c(0, 10), type = "n", axes = FALSE, xlab = "", ylab = "",
      main = "")
  legend("center", legend = levels(kids$socBranch), col = cols, lty = ltys, cex = 1.5, lwd = 1.5)
 par(oldpar)
