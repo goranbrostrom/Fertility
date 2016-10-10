@@ -1,4 +1,4 @@
- fertil2 <- function(){
+fertil2 <- function(){
     ## Expansion of 'fertil'; uses 'skum' instead of 'skel14'.
     ## Must be run from '..'! (see save at bottom)
     ## Note also that we include Umeå and start 1800.99 instead of 1820.99! 
