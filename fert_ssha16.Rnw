@@ -22,6 +22,9 @@ the demographic transition, northern Sweden 1821--1950}
 \maketitle
 
 \begin{abstract}
+The impact of the family's socioeconomic status at marriage
+on later child births during the demographic transition (1821--1950) is
+studied.
 
 \end{abstract}
 
@@ -155,7 +158,7 @@ kids <- ageGroup(kids, seq(20, 50, by = 5))
 kids$exposure <- kids$exit - kids$enter
 
 kTab <- aggregate(kids[, c("event", "exposure")],
-                  kids[, c("age", "period", "cohort", "marAge", "hisclass", "socBranch", "region")],
+                  kids[, c("age", "period", "cohort", "marAge", "hisclass", "socBranch", "region", "urban")],
                   FUN = sum)
 kTab$age <- factor(kTab$age, labels = c("20-24", "25-29", "30-34",
                                         "35-39", "40-44", "45-49"))
