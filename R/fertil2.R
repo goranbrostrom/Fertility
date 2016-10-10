@@ -10,15 +10,18 @@
     married <- married[order(married$id, married$enter), ]
     married <- married[married$enter < 50, ]
     married$exit <- pmin(married$exit, 50)
+    married$urban <- married$ortnmn %in% c("UMEÅ", "SKELLEFTEÅ STAD")
     married <- married[, c("id", "region", "socst", "starttyp", "pid",
                            "sluttyp", "birthdate", "enter", "exit", "socpo",
-                           "hisclass", "socBranch", "socStatus")]
+                           "hisclass", "socBranch", "socStatus", "urban")]
     ## We want them to be present sometime before age 20:
     earlyBirds <- unique(skum::obs$id[skum::obs$enter < 20])
     married <- married[married$id %in% earlyBirds, ]
     married <- rc(married)
 
-    kids <- skum::per[skum::per$mid %in% married$id, c("id", "mid", "region", "foddat", "doddat", "ab")]
+    kids <- skum::per[skum::per$mid %in% married$id, c("id", "mid", "region", "foddat", "doddat", "ab", "fodhfrs")]
+    kids$urban <- kids$fodhfrs %in% c(82780, 82981) # Added 10 oct 2016
+    kids$fodhfrs <- NULL
     kids <- kids[kids$ab %in% c(0, 1, 3), ]
     ##return(kids)
     kids$birthdate <- as.numeric(toTime(kids$foddat))
@@ -86,13 +89,14 @@
     kids <- rbind(kids, liv)
     kids <- kids[order(kids$id, kids$birthdate), ]
     kids <- rc(kids)
-    ##return(kids)
+    ## return(kids)
     ## And now put on childless married women (nomothers):
     ##return(nomothers)
     nm <- NROW(nomothers)
     nomo <- data.frame(id = nomothers$id,
                        region = nomothers$region,
                        ab = rep(NA, nm),
+                       urban = nomothers$urban,
                        birthdate = rep(NA, nm), 
                        deathdate = rep(NA, nm),
                        marStart = nomothers$marStart,
@@ -114,7 +118,7 @@
     kids$birthdate <- kids$m.birthdate
     kids$m.birthdate <- NULL
     kids <- kids[!is.na(kids$socst), 
-                 c("id", "ch.id", "region", "birthdate", "ch.birthdate", "deathdate",
+                 c("id", "ch.id", "region", "urban", "birthdate", "ch.birthdate", "deathdate",
                    "enter", "exit", "event", "socst", "marStart", "marEnd")]
     kids <- kids[order(kids$id, kids$ch.birthdate), ]
     kids <- rc(kids)
