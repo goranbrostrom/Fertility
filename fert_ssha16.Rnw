@@ -149,6 +149,9 @@ process.
 load("data/kids.rda")
 library(skum)
 library(eha)
+## Factor hisclass into six groups:
+kids$hisclass <- cut(kids$hisclass, c(0, 1.5, 2.5, 3.5, 4.5, 5.5, 7.5), labels = c("elite", "middle", "farmer",
+                                                                                   "skilled", "lower_skilled", "unskilled"))
 kids <- age.window(kids, c(20, 50))
 kids <- kids[kids$birthdate > 1801, ]
 N <- c(.460, .431, .395, .322, .167, .024)
@@ -233,7 +236,7 @@ number of births up to but \emph{not including} age $t$.
 We will assume a piecewise constant hazard model on  the age span 20--50, with jumps every fifth year. We apply the restriction proposed by \citet{ac71} and \citet{ct78}:
 
 \begin{equation}
-\lambda(t) = M n(t) \exp\{m v(t)\}, \quad 20 \le t < 50,
+\lambda(t) = M n(t) \exp\{-m v(t)\}, \quad 20 \le t < 50,
 \end{equation}
 where 
 \begin{equation}
@@ -250,22 +253,68 @@ and
 \begin{equation}
 v(t) = \begin{cases}
        0.000 & 20 \le t < 25 \\
-       -0.279 & 25 \le t < 30 \\
-       -0.667 & 30 \le t < 35 \\
-       -1.042 & 35 \le t < 40 \\
-       -1.414 & 40 \le t < 45 \\
-       -1.671 & 45 \le t < 50 
+       0.279 & 25 \le t < 30 \\
+       0.667 & 30 \le t < 35 \\
+       1.042 & 35 \le t < 40 \\
+       1.414 & 40 \le t < 45 \\
+       1.671 & 45 \le t < 50 
        \end{cases}
 \end{equation}
+
+The parameter $m$ governs the form of the (cumulative) hazard function, while $M$ measures level. Figure~\ref{fig:plMm} shows two cases, $(m, M) = (0, 1)$ and $(m, M) = (1, 1.57)$. These two cases generate the same expected number of births over a full reproductive period (20--50). The first is an example of \emph{spacing}, but no \emph{stopping}, while the second is a case of stopping (and eventually spacing).
+
+<<plMm, fig.cap = "The Coale-Trussell distribution, two examples: (m = 0, M = 1) is solid, (m = 1, M = 1.57) is dashed.", fig.height = 4>>=
+oldpar <- par(mfrow = c(1, 2))
+## (0, 1):
+y <- cumsum(c(0, N)) * 5 ##* 0.637
+x <- seq(20, 50, by = 5)
+plot(x, y, type = "l", col = "blue", xlab = "Age", ylab = "Cumulative hazards")
+y <- cumsum(c(0, N * exp(V))) * 5 * 1.57
+lines(x, y, col = "red", lty = 2)
+text(26, 8.3, "(m = 1, M = 1.57)", col = "red", cex = 0.75)
+text(40, 4.8, "(m = 0, M = 1)", col = "blue", cex = 0.75)
+abline(h = 0)
+plot(c(20, 25), c(N[1], N[1]), col = "blue", type = "l", xlim = c(20, 50), ylim = c(0, 0.75), 
+     xlab = "Age", ylab = "Hazards")
+for(i in 2:6){
+    lines(x[i:(i + 1)], c(N[i], N[i]), col = "blue")
+    lines(c(x[i], x[i]), N[(i-1):i], col = "blue", lty = 3)
+}
+y <- N * exp(V) * 1.57
+for(i in 1:6){
+    lines(x[i:(i + 1)], c(y[i], y[i]), col = "red", lty = 2)
+    lines(c(x[i+1], x[i+1]), y[i:(i+1)], col = "red", lty = 3)
+}
+abline(h = 0)
+par(oldpar)
+@
+
+The parameter $M$ measures level, but note that keeping $M$ fixed and increasing $m$ lowers the total hazard up to age 50.
 
 \section{Data}
 
 Data come from The Demographic Data Base, Centre for Demographic and Ageing
 Research ({\sc Cedar}) at Umeå University, Sweden, and cover the Skellefteå region,
 situated in the north of Sweden \citep{wee16}, and the Umeå region, situated 100 km south of Skellefteå. All women, ever married and born between 1 January 1801 and 31 December 1935 and present in the region at age 15, are included in the
-data set. For each woman, the exact timing of her deliveries (if any) after
-the onset of the first marriage are recorded.
+data set and followed throghout their fertility period, but not after December 31, 1950. For each woman, the exact timing of her deliveries (if any) after the onset of the first marriage are recorded.
 
+Figure~\ref{fig:lexis} shows the sampling frame.
+
+<<lexis, fig.height = 3.3, fig.cap = "The sampling frame.">>=
+plot(c(1851, 1951), c(50, 50), type = "l", xlim = c(1821, 1951), ylim = c(20, 50), col = "blue", 
+     xlab = "Year", ylab = "Age", axes = FALSE)
+axis(1, at = c(1821, 1851, 1901, 1921, 1951))
+axis(2)
+box()
+abline(h = 0)
+lines(c(1851, 1951), c(49.8, 49.8), col = "red")
+lines(c(1821, 1851), c(20, 50), col = "red")
+lines(c(1921, 1951), c(20, 50), col = "red")
+lines(c(1851, 1851), c(20, 50), col = "blue")
+lines(c(1821, 1921), c(20, 20), col = "red")
+lines(c(1851, 1951), c(20.2, 20), col = "blue")
+lines(c(1951, 1951), c(20, 50), col = "blue")
+@
 Central covariates are family {\sc Hisclass}, {\tt social branch} (with categories {\tt official}, {\tt farm\-ing}, {\tt business} and {\tt worker}), {\tt mother's age at marriage}, and mother's {\tt birthdate}. The first six rows in our data file are (with selected columns) shown in Table~\ref{tab:sixrow}.
 <<sixrow,echo=FALSE,results='asis'>>=
 ##load("data/kids.rda")
@@ -281,12 +330,15 @@ fert1$exit <- round(fert1$exit, 3)
 #fert1$farmer <- as.numeric(fert1$socpo == "2")
 #fert1$birthdate <- fert1$birthdate
 x <- head(fert1[, c("id", "region", "marAge", "birthdate", "hisclass", "socBranch", "enter", "exit", "event")])
-print(xtable(x, digits = c(0,0, 0, 3,3,0,0, 3, 3, 0), caption = "First six records from the data file.", label = "tab:sixrow"), include.rownames = FALSE)
+print(xtable(x, digits = c(0,0, 0, 3,3,0,0, 3, 3, 0), caption = "First six records from the data file (selected columns).", label = "tab:sixrow"), include.rownames = FALSE)
 @
 Woman No.\ 55 got married at age 21.816 (years), was followed until age 38.457 (end of marriage),
 and she had five births.
  The last interval (almost) always ends with no birth ({\tt event = FALSE}): Women are followed until age 50, end of marriage, or lost to follow-up, whichever comes first. Note that childless marriages are included.
 
+Table~\ref{tab:hisc} shows the distribution over socioeconomic status and time periods.
+
+<<tabh
 Tabulating data \citep{gb85}.
 
 \section*{Analysis}
