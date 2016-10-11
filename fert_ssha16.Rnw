@@ -230,13 +230,34 @@ number of births up to but \emph{not including} age $t$.
 
 \subsection{The Coale-Trussell model}
 
-We will assume a piecewise constant hazard model on  the age span 20--50, with jumps every fifth year. We apply the restriction proposed by \citet{ac71} and \citet{ct78}.
+We will assume a piecewise constant hazard model on  the age span 20--50, with jumps every fifth year. We apply the restriction proposed by \citet{ac71} and \citet{ct78}:
 
-\begin{equation*}
-\lambda(t) = N(t) M \exp{m V(t)}, 20 < t < 50,
-\end{equation*}
-
+\begin{equation}
+\lambda(t) = M n(t) \exp\{m v(t)\}, \quad 20 \le t < 50,
+\end{equation}
 where 
+\begin{equation}
+n(t) = \begin{cases}
+       0.460 & 20 \le t < 25 \\
+       0.431 & 25 \le t < 30 \\
+       0.395 & 30 \le t < 35 \\
+       0.322 & 35 \le t < 40 \\
+       0.167 & 40 \le t < 45 \\
+       0.024 & 45 \le t < 50 
+       \end{cases}
+\end{equation}
+and 
+\begin{equation}
+v(t) = \begin{cases}
+       0.000 & 20 \le t < 25 \\
+       -0.279 & 25 \le t < 30 \\
+       -0.667 & 30 \le t < 35 \\
+       -1.042 & 35 \le t < 40 \\
+       -1.414 & 40 \le t < 45 \\
+       -1.671 & 45 \le t < 50 
+       \end{cases}
+\end{equation}
+
 \section{Data}
 
 Data come from The Demographic Data Base, Centre for Demographic and Ageing
