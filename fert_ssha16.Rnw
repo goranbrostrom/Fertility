@@ -111,15 +111,15 @@ Where in Sweden? See map in Figure~\ref{fig:map2}.
 \end{center}
 \end{figure}
 
-See the map at Figure~\ref{fig:map}.
-
-\begin{figure}
-\begin{center}  
-\includegraphics[height=18cm]{myfigs/skum.pdf}
-\caption{The Skellefte{\aa} and Ume{\aa} regions.}
-\label{fig:map}
-\end{center}
-\end{figure}
+% See the map at Figure~\ref{fig:map}.
+% 
+% \begin{figure}
+% \begin{center}  
+% \includegraphics[height=18cm]{myfigs/skum.pdf}
+% \caption{The Skellefte{\aa} and Ume{\aa} regions.}
+% \label{fig:map}
+% \end{center}
+% \end{figure}
 
 \subsection{Skellefteå}
 
@@ -170,7 +170,10 @@ fluctuated between three and six per cent during the nineteenth century
 
 \subsection{Umeå}
 
-The Umeå region is one of the newest in the collection of regions digitized at the Demographic Data Bbase, Umeå University. The covered time period is shorter than the one for the Skellefteå region in that registration starts around January 1, 1901.  
+The Umeå region is one of the newest in the collection of regions digitized
+at the Demographic Data Bbase, Umeå University. The covered time period is
+shorter than the one for the Skellefteå region in that registration starts
+around January 1, 1901.
 
 \section{Models}
 The statistical modeling is conveniently done in the framework of
@@ -198,8 +201,9 @@ kids$marAge <- cut(kids$marStart, seq(15, 50, by = 5))
 source("R/ageGroup.R")
 kids <- ageGroup(kids, seq(20, 50, by = 5))
 kids$exposure <- kids$exit - kids$enter
-
-kTab <- aggregate(kids[, c("event", "exposure")],
+kids$inf.death <- with(kids, !is.na(deathdate) & (deathdate - ch.birthdate < 1))
+kids$event1 <- kids$event & (!kids$inf.death) # Births living at age 1
+kTab <- aggregate(kids[, c("event", "event1", "exposure")],
                   kids[, c("age", "period", "cohort", "marAge", "hisclass", "socBranch", "region", "urban")],
                   FUN = sum)
 kTab$age <- factor(kTab$age, labels = c("20-24", "25-29", "30-34",
@@ -211,6 +215,17 @@ for (i in 1:6){
     kTab$N[who] <- N[i]
     kTab$V[who] <- V[i]
 }
+
+kids$age <- factor(kids$age, labels = c("20-24", "25-29", "30-34",
+                                        "35-39", "40-44", "45-49"))
+kids$N <- 0
+kids$V <- 0
+for (i in 1:6){
+    who <- kids$age == levels(kids$age)[i]
+    kids$N[who] <- N[i]
+    kids$V[who] <- V[i]
+}
+
 @
 
 \subsection{Fertility as a counting process}
@@ -224,8 +239,10 @@ as the \emph{number of births before and including age $t$ and after
   marriage at age $m_i$} for woman No.\
 $i$. By age we mean \emph{exact age}, measured by a precision of a day, but with
 \emph{time unit year}. Thus $\{N_i, \, i = 1, 2, \ldots\}$ are \emph{counting processes} with jumps of size
-one (except for multiple births) at the age of the mother at deliveries. As
-an example, see Figure~\ref{fig:countbir} for the marital fertility history of mother No.\ 55: She married at age 22, emigrated at age 38, and in between she had five births. See
+one (except for multiple births) at the age of the mother at deliveries. As 
+an example, see Figure~\ref{fig:countbir} for the marital fertility history
+of mother No.\ 55: She married at age 22, emigrated at age 38, and in
+between she had five births. See 
 \citet{aalen08} for details on the counting process theory.
 
 <<countbir, echo=FALSE,fig.height=3, fig.cap = "Birth history as a counting process, woman with id 55.">>=
@@ -264,39 +281,75 @@ number of births up to but \emph{not including} age $t$.
 %' par(opar)
 %' @
 
-\subsection{The Coale-Trussell model}
+\subsection{The Coale-Trussell (CT) model}
 
-We will assume a piecewise constant hazard model on  the age span 20--50, with jumps every fifth year. We apply the restriction proposed by \citet{ac71} and \citet{ct78}:
+We will assume a piecewise constant hazard model on  the age span 20--50,
+with jumps every fifth year. We apply the restriction proposed by
+\citet{ac71} and \citet{ct78}: 
 
 \begin{equation}
-\lambda(t) = M n(t) \exp\{-m v(t)\}, \quad 20 \le t < 50,
+\lambda(t) = M n(t) e^{m v(t)}, \quad 20 \le t < 50,
 \end{equation}
-where 
-\begin{equation}
-n(t) = \begin{cases}
-       0.460 & 20 \le t < 25 \\
-       0.431 & 25 \le t < 30 \\
-       0.395 & 30 \le t < 35 \\
-       0.322 & 35 \le t < 40 \\
-       0.167 & 40 \le t < 45 \\
-       0.024 & 45 \le t < 50 
-       \end{cases}
-\end{equation}
-and 
-\begin{equation}
-v(t) = \begin{cases}
-       0.000 & 20 \le t < 25 \\
-       0.279 & 25 \le t < 30 \\
-       0.667 & 30 \le t < 35 \\
-       1.042 & 35 \le t < 40 \\
-       1.414 & 40 \le t < 45 \\
-       1.671 & 45 \le t < 50 
-       \end{cases}
-\end{equation}
+where the piecewise constant functions $n, v$ are given in
+Table~\ref{tab:cotr}. 
 
-The parameter $m$ governs the form of the (cumulative) hazard function, while $M$ measures level. Figure~\ref{fig:plMm} shows two cases, $(m, M) = (0, 1)$ and $(m, M) = (1, 1.57)$. These two cases generate the same expected number of births over a full reproductive period (20--50). The first is an example of \emph{spacing}, but no \emph{stopping}, while the second is a case of stopping (and eventually spacing).
+%% <<coefsct, results='asis'>>=
+%% x <- cbind(N, V)
+%% colnames(x) <- c("n(t)", "v(t)")
+%% rownames(x) <- levels(kTab$age)
+%% xtable(x, digits = 3)
+%% @ 
 
-<<plMm, fig.cap = "The Coale-Trussell distribution, two examples: (m = 0, M = 1) is solid, (m = 1, M = 1.57) is dashed.", fig.height = 4>>=
+\begin{table}[h!]
+  \begin{center}
+\begin{tabular}{c|rrrrrr} \hline
+  t & 20--25 & 25--30 & 30--35 & 35--40 & 40--45 & 45--50 \\ \hline
+  n(t) & 0.460 & 0.431 & 0.395 & 0.322 & 0.167 & 0.024 \\
+  v(t) & 0.000 & -0.279 & -0.667 & -1.042 & -1.414 & -1.671 \\ \hline
+\end{tabular}
+\end{center}
+\caption{The constants in the Coale-Trussell (CT) model.}
+\label{tab:cotr}
+\end{table}
+
+%% \begin{tabular}{c|cc}
+%%  $t$ & $n(t)$ & $v(t)$ \\ \hline
+%%  20--25 & 0.460 & 0.000 \\
+%%  25--30 & 0.431 & 0.279 \\
+%%  30--35 & 0.395 & 0.667 \\ 
+%% \end{tabular}
+
+%% \begin{equation}
+%% n(t) = \begin{cases}
+%%        0.460 & 20 \le t < 25 \\
+%%        0.431 & 25 \le t < 30 \\
+%%        0.395 & 30 \le t < 35 \\
+%%        0.322 & 35 \le t < 40 \\
+%%        0.167 & 40 \le t < 45 \\
+%%        0.024 & 45 \le t < 50 
+%%        \end{cases}
+%% \end{equation}
+%% and 
+%% \begin{equation}
+%% v(t) = \begin{cases}
+%%        0.000 & 20 \le t < 25 \\
+%%        0.279 & 25 \le t < 30 \\
+%%        0.667 & 30 \le t < 35 \\
+%%        1.042 & 35 \le t < 40 \\
+%%        1.414 & 40 \le t < 45 \\
+%%        1.671 & 45 \le t < 50 
+%%        \end{cases}
+%% \end{equation}
+
+The parameter $m$ governs the form of the (cumulative) hazard function,
+while $M$ measures level. Figure~\ref{fig:plMm} shows two cases, $(m, M) =
+(0, 1)$ and $(m, M) = (1, 1.57)$. These two cases generate the same
+expected number of births over a full reproductive period (20--50), that
+is, the same \emph{Total Marital Fertility Rate} (TMFR). The
+first is an example of \emph{spacing}, but no \emph{stopping}, while the
+second is a case of stopping (and eventually spacing). 
+
+<<plMm, fig.cap = "The Coale-Trussell (CT) distribution, two examples: (m = 0, M = 1) is solid, (m = 1, M = 1.57) is dashed.", fig.height = 4>>=
 oldpar <- par(mfrow = c(1, 2))
 ## (0, 1):
 y <- cumsum(c(0, N)) * 5 ##* 0.637
@@ -322,14 +375,31 @@ abline(h = 0)
 par(oldpar)
 @
 
-The parameter $M$ measures level, but note that keeping $M$ fixed and increasing $m$ lowers the total hazard up to age 50.
+The parameter $M$ measures level, but note that keeping $M$ fixed and
+increasing $m$ \emph{lowers} the TMFR. 
+
+How realistic is the CT model? We compare its fits for two
+populations, one with an $m$ close to zero, and one with $m$ close to one,
+and we compare it to a piecewise constant hazard (PCH) model with the same
+interval partitioning as in the CT but with freely varying levels. See 
+Figure~\ref{fig:compCT}.
+
+<<compCT, fig.cap = "Evaluation of the Coale-Trussell (CT) model, compared to a piecewise constant (PCH) model. Left panel from the time period 1851--80, the right panel from 1931--40. Non-farmers.", fig.scap = "Evaluation of the Coale-Trussell model.">>=
+source("R/valueCT.R")
+valueCT(kTab)
+@ 
+
+The fit seems to be satisfactory, even if a formal test would reject the CT
+model in favor of the PCH.
 
 \section{Data}
 
-Data come from The Demographic Data Base, Centre for Demographic and Ageing
+Data come from The Demographic Data Base, Centre for Demographic and Ageing 
 Research ({\sc Cedar}) at Umeå University, Sweden, and cover the Skellefteå region,
 situated in the north of Sweden \citep{wee16}, and the Umeå region, situated 100 km south of Skellefteå. All women, ever married and born between 1 January 1801 and 31 December 1935 and present in the region at age 15, are included in the
-data set and followed throghout their fertility period, but not after December 31, 1950. For each woman, the exact timing of her deliveries (if any) after the onset of the first marriage are recorded.
+data set and followed throghout their fertility period, but not after
+December 31, 1950. For each woman, the exact timing of her deliveries (if
+any) after the onset of the first marriage and after age 20 are recorded. 
 
 Figure~\ref{fig:lexis} shows the sampling frame. The parallelogram is the basis for \emph{cohort} analysis, and the rectangle correspondingly for \emph{period} analysis.
 
@@ -397,8 +467,65 @@ yy <- round(prop.table(xx, 1) * 100, 1)
 xtable(yy[-(1:3), ], digits = 1, caption = "Distribution of exposure over social class and time period, the Umeå region.", label = "tab:hiscume")
 @ 
 
+\section{Variables}
 
-Tabulating data \citep{gb85}. See \citet{jmh11}.
+The following variables are of primary interest in our analysis.
+
+\begin{description}
+\item[region] Birth region, Skellefteå or Umeå.
+\item[urban] {\tt TRUE} if birth in one of the towns Skellefteå and Umeå, otherwise {\tt FALSE}.
+\item[birthdate] A real number indicating mother's birth date.
+\item[ch.birthdate] The birth date of the child.
+\item[deathdate] The death date of the child.
+\item[enter] Mother's age at previous child, marriage, first seen, or age 20.
+\item[exit] mother's age at birth of current child or date last seen or age 50.
+\item[event] Indicator of a birth at {\tt exit}.
+\item[event1] Indicator of a birth that survives age one at {\tt exit}.
+\item[lopnr] Birth order among \emph{observed} births between ages 20 and 50.
+\item[antrec] Total number of records for current woman.
+\item[hisclass] Hisclass with the following categories.
+\begin{description}
+   \item[elite] The cream of the society.
+   \item[middle] The middle class.
+   \item[farmer] Farmers, by far the largest group. Decreases in relative size over time.
+   \item[skilled] Skilled workers.
+   \item[lower skilled] Not so skilled workers.
+   \item[unskilled] Unskilled workers.
+ \end{description}
+\item[socBranch] Four branch categories, {\tt official}, {\tt farming}, {\tt business}, abd {\tt worker}. Much overlap with {\bf hisclass}.
+\item[cohort] Birth cohort of mother.
+\item[period] Calendar time period.
+\item[marAge] Age at marriage.
+\item[age] Mother's age at child birth grouped in five-year-intervals.
+\item[exposure] Interval length.
+\item[ind.death] Did the born child die before age one?
+\item[event1] Did the interval end with a birth surviving for one year?
+\item[N] The constants from the Coale-Trussell model.
+\item[V] The constants from the Coale-Trussell model.
+\end{description}
+
+Now, since all or interesting covariates are, or can be transformed into, categorical variables, \emph{aggregating} the variables {\tt exposure}, {\tt event},  and {\tt event1} over all possible combinations of values of the other covariates creates three multidimensional tables that can be stored in a compact way as seen in Tables~\ref{tab:compact} and~\ref{tab:compact2}.
+
+<<compact, results = 'asis'>>=
+xtable(head(kTab[, names(kTab)[2:8]]), caption = "First rows in compact multiway table. Columns representing explanatory variables.", 
+       label = "tab:compact")
+@
+
+<<compact2, results = 'asis'>>=
+xtable(head(kTab[, names(kTab)[-(2:8)]]), caption = "First rows in compact multiway table. Columns representing response and model (CT) constants.", label = "tab:compact2", digits = c(0, 0, 0, 0, 3, 3, 3))
+@
+
+There are 225\,792 unique combinations of the levels of the expanatory variables, but many of them are either structural or random zeros, so the total number of observed combinations is only 6\,228. The original data frame contains 300\,579 records. 
+
+Thus, the analyses of our problem gain hugely in speed by using the aggregated tables, and further, it makes it very easy to implement the Coale-Trussell model. The worries are: Are we losing information? Will our results be biased?
+
+The answers to these questions are: Given that the model we are fitting, and given the original data, the tables we create form \emph{sufficient statistics}. This means that, given our tables, the extra information in the original data is pure noise. It will \emph{not} improve our results. 
+
+That is the good news. The back side is that the "pure noise" can be used to judge model fit. If an analysis shows that it is \emph{not} pure noise, but perhaps is related to a (subset of) our data, then we are in trouble. So, the advice is: perform all the estimations and testing in the tabular world, and evaluate model fit with the original data. It saves a huge amount of time compared to doing everything with the original sample.
+
+In our specific case, with the piecewise constant hazards model, we can utilize the fact that the likelihood function that is given by a survival analysis is exactly the same as if we interpret the number of births in each of our cells as following a \emph{Poisson} distribution and write down the resulting likelihood function. But note carefully that this does \emph{not} imply that the numbers of births really follow a Poisson distribution (they do not). Thus, we can utilize ordinary software for Poisson regression and get very efficient and fast parameter estimation. The (small) price we have to pay is that for instance estimates of the baseline hazard function are not coming automatically but require some thought. 
+
+These ideas are not new, see e.g.\  \citet{gb85}. Long before software for survival analysis (read: Cox regression) was commonly available, in the late 1970s, Jan M.\ Hoem taught us how to do this with software analysing loglinear models for contigency tables, see \citet{hoem87,jmh11} and \citet{nldo81}. This is interesting: Because there were no good statistical software for survival analysis around 1980, innovative methods like the log-linear models were found to work outside their so-called natural domain. When later new software appeared for direct survival analysis these methods were forgotten (more or less). Now they are found useful again, but for a different reason: We are analysing larger and larger data sets, and raw calculation ties up too much time and other resources, so by thinking and remembering the theory about sufficient statistics, we can do things much faster and with much smaller, and anonymous, data sets. 
 
 \section{Analysis}
 
