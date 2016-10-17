@@ -507,7 +507,7 @@ The following variables are of primary interest in our analysis.
 Now, since all or interesting covariates are, or can be transformed into, categorical variables, \emph{aggregating} the variables {\tt exposure}, {\tt event},  and {\tt event1} over all possible combinations of values of the other covariates creates three multidimensional tables that can be stored in a compact way as seen in Tables~\ref{tab:compact} and~\ref{tab:compact2}.
 
 <<compact, results = 'asis'>>=
-xtable(head(kTab[, names(kTab)[2:8]]), caption = "First rows in compact multiway table. Columns representing explanatory variables.", 
+xtable(head(kTab[, names(kTab)[2:8]]), caption = "First rows in compact multiway table. Colu1mns representing explanatory variables.", 
        label = "tab:compact")
 @
 
@@ -557,6 +557,7 @@ lower, while in the last two periods, 1911--1950, it is obvious that the
 while the rest clearly adapts to a low-fertility pattern.    
 Differences in age at marriage for women play a fundamental role, of course. A
 quick analysis of age at marriage by {\tt socBranch} shows no big differences : Typical and average marriage ages lie between 26 and 26 years of age.
+
 
 \subsection{Stopping}
 
@@ -718,6 +719,7 @@ Then by {\tt hisclass}, see Figure~\ref{fig:plotmhcTMFR}.
 
 <<plotmhcTMFR, fig.cap = "TFMR by hisclass and period.">>=
 ##source("R/getMmhc.R")
+source("R/tmfrCT.R")
 y <- matrix(0, ncol = 8, nrow = 6)
 ##kTab <- kTab[kTab$region == "ske", ]
 pp <- levels(kTab$period)
@@ -770,6 +772,258 @@ abline(h = 0)
 
 
 <<cohorttmfr, fig.cap = "Hej">>=
+source("R/kohort.R")
+y <- matrix(0, nrow = 6, ncol = 5)
+koh <- levels(kids$cohort)
+for (i in 1:5){
+    y[, i] <- kohort(koh[i])
+}
+x <- c(1830, 1850, 1870, 1890, 1910)
+plot(x, y[1, ], type = "b", ylim = c(0, 7))
+for(i in 2:6){
+    lines(x, y[i, ], col = i, lty = i, pch = i, type = "b")
+}
+@
+
+\section{Successful births}
+
+We define (for now) a \emph{successful birth} as a birth of a child that
+survives at least one year after birth. Technically, in the counting
+process framework, the time point of such birth is \emph{not a stopping
+  time} (we need to wait one year after a birth to know if it can be
+classified as a success), but it is a minor problem in this context. If we
+instead define an event time as the time when an infant turns into a child
+(at the first birthday), we have a  stopping time, an subtracting one does
+not change that fact; we can regard it as a change of time scale. Of
+course, it may happen that it is impossible to decide if a birth results in
+a child one year later, but it is quite rare in our data, and we chose to
+ignore it: such a birth is regarded as a success.
+
+The Ccoale-Trussell model will once again be used in the analysis, which is
+a repitition of the one in the previous section, but with the new version
+of a birth. If the infant death is independent of parity, we would expect
+that $m$ would be the same but $M$ would be reduced. 
+
+With the new data set, where {\tt event} is replaced by {\tt event1}, we
+get the results presented in the rest of this section.
+
+<<successdata>>=
+kTab_orig <- kTab
+kTab$event <- kTab$event1
+@ 
+
+\subsection{Stopping}
+
+We consider the development of a stopping behavior both by period and by
+cohort.  
+
+\subsubsection{By period}
+
+% First we illustrate the development by {\tt social branch}, see
+% Figure~\ref{fig:plotm}. 
+% 
+% <<plotm, fig.cap = "Coale-Trussell's m by branch and period.">>=
+% source("R/getMm.R")
+% y <- matrix(0, ncol = 8, nrow = 4)
+% ##kTab <- kTab[kTab$region == "ske", ]
+% pp <- levels(kTab$period)
+% for (i in 2:8){
+%     y[, i] <- getMm(kTab[kTab$period == pp[i], ])[, 2]
+% }
+% x <- c(1865, 1890, 1905, 1915, 1925, 1935, 1945)
+% plot(x, y[1, -1], col = 1, type = "b", ylab = "m", ylim = c(0, 1.3),
+%      axes = FALSE, xlab = "Period", xlim = c(1851, 1951), lwd = 2)
+% axis(1, at = c(1851, x, 1950), las = 2)
+% axis(2)
+% box()
+% for (j in 2:4){
+%     lines(x, y[j, -1], col = j, type = "b", pch = j, lty = j, lwd = 2)
+% }
+% legend("topleft", legend = levels(kTab$socBranch), col = 1:4, pch = 1:4, lty = 1:4)
+% @
+
+Then by {\tt hisclass}, see Figure~\ref{fig:plotmhc1}.
+
+<<plotmhc1, fig.cap = "Coale-Trussell's m by hisclass and period.">>=
+source("R/getMmhc.R")
+y <- matrix(0, ncol = 8, nrow = 6)
+##kTab <- kTab[kTab$region == "ske", ]
+pp <- levels(kTab$period)
+for (i in 2:8){
+    y[, i] <- getMmhc(kTab[kTab$period == pp[i], ])[, 2]
+}
+x <- c(1865, 1890, 1905, 1915, 1925, 1935, 1945)
+plot(x, y[1, -1], col = 1, type = "b", ylab = "m", ylim = c(0, 1.3),
+     axes = FALSE, xlab = "Period", xlim = c(1851, 1951), lwd = 2)
+axis(1, at = c(1851, x, 1950), las = 2)
+axis(2)
+box()
+for (j in 2:6){
+    lines(x, y[j, -1], col = j, type = "b", pch = j, lty = j, lwd = 2)
+}
+legend("topleft", legend = levels(kTab$hisclass), col = 1:6, pch = 1:6, lty = 1:6)
+@
+
+
+\subsubsection{By cohort}
+
+% First we illustrate the development by {\tt social branch}, see
+% Figure~\ref{fig:plotmcoh}. 
+% 
+% <<plotmcoh, fig.cap = "Coale-Trussell's m by branch and cohort.">>=
+% kohort <- kTab[!(kTab$cohort %in% c("1921-1940", "1941-1960")), ]
+% kohort$cohort <- factor(kohort$cohort)
+% y <- matrix(0, ncol = 5, nrow = 4)
+% ##kTab <- kTab[kTab$region == "ske", ]
+% pp <- levels(kohort$cohort)
+% for (i in 1:5){
+%     y[, i] <- getMm(kohort[kohort$cohort == pp[i], ])[, 2]
+% }
+% x <- c(1830, 1850, 1870, 1890, 1910)
+% plot(x, y[1, ], col = 1, type = "b", ylab = "m", ylim = c(0, 1.3),
+%      axes = FALSE, xlab = "Cohort", xlim = c(1821, 1921), lwd = 2)
+% axis(1, at = c(1821, x, 1920), las = 2)
+% axis(2)
+% box()
+% for (j in 2:4){
+%     lines(x, y[j, ], col = j, type = "b", pch = j, lty = j, lwd = 2)
+% }
+% legend("topleft", legend = levels(kohort$socBranch), col = 1:4, pch = 1:4, lty = 1:4)
+% @
+
+Then the development by cohort and hisclass, see Figure~\ref{fig:plotmkohhc1}.
+
+<<plotmcohhc1, fig.cap = "Coale-Trussell's m by hisclass and cohort, successful births.">>=
+kohort <- kTab[!(kTab$cohort %in% c("1921-1940", "1941-1960")), ]
+kohort$cohort <- factor(kohort$cohort)
+y <- matrix(0, ncol = 5, nrow = 6)
+##kTab <- kTab[kTab$region == "ske", ]
+pp <- levels(kohort$cohort)
+for (i in 1:5){
+    y[, i] <- getMmhc(kohort[kohort$cohort == pp[i], ])[, 2]
+}
+x <- c(1830, 1850, 1870, 1890, 1910)
+plot(x, y[1, ], col = 1, type = "b", ylab = "m", ylim = c(0, 1.3),
+     axes = FALSE, xlab = "Cohort", xlim = c(1821, 1921), lwd = 2)
+axis(1, at = c(1821, x, 1920), las = 2)
+axis(2)
+box()
+for (j in 2:6){
+    lines(x, y[j, ], col = j, type = "b", pch = j, lty = j, lwd = 2)
+}
+legend("topleft", legend = levels(kohort$hisclass), col = 1:6, pch = 1:6, lty = 1:6)
+@
+
+% <<kollp, fig.cap = "Cumulative intensities of births by social branch.", message = FALSE, echo = FALSE, fig.height = 5.5>>=
+% source("R/addPer.R")
+% library(skum)
+% cols <- c("darkgreen", "blue", "black", "red")
+% ltys <- c(2, 1, 6, 5)
+% ##kids <- addPer(kids, seq(1851, 1951, by = 20))
+% oldpar <- par(mfrow = c(2, 3))
+% i = 0
+% for (pr in levels(kids$period)){
+%     i = i + 1
+%     fit <- coxph(Surv(enter, exit, event) ~ strata(socBranch), 
+%                  data = kids[kids$period == pr, ])
+%     plot(survfit(fit), fun = "cumhaz", xlab = "Age", xlim = c(20, 50), ylim = c(0, 10),
+%          main = pr, col = cols, lty = ltys, lwd = 1.5)
+%    
+% }
+% plot(1, 1, xlim = c(20, 50), ylim = c(0, 10), type = "n", axes = FALSE, xlab = "", ylab = "",
+%      main = "")
+%  legend("center", legend = levels(kids$socBranch), col = cols, lty = ltys, cex = 1.5, lwd = 1.5)
+% par(oldpar)
+% @
+
+\subsection{TMFR}
+
+\subsubsection{By period}
+
+% We illustrate the development by {\tt social branch}, see
+% Figure~\ref{fig:plotTMFR}. 
+% 
+% <<plotTMFR, fig.cap = "TMFR by branch and period.">>=
+% source("R/tmfrCT.R")
+% y <- matrix(0, ncol = 8, nrow = 4)
+% ##kTab <- kTab[kTab$region == "ske", ]
+% pp <- levels(kTab$period)
+% for (i in 2:8){
+%     res <- getMm(kTab[kTab$period == pp[i], ])
+%     for (j in 1:4){
+%        y[j, i] <- tmfrCT(res[j, 1], res[j, 2])
+%     }
+% }
+% x <- c(1865, 1890, 1905, 1915, 1925, 1935, 1945)
+% plot(x, y[1, -1], col = 1, type = "b", ylab = "TMFR", ylim = c(0, 10),
+%      axes = FALSE, xlab = "Period", xlim = c(1851, 1951), lwd = 2)
+% axis(1, at = c(1851, x, 1950), las = 2)
+% axis(2, las = 2)
+% box()
+% for (j in 2:4){
+%     lines(x, y[j, -1], col = j, type = "b", pch = j, lty = j, lwd = 2)
+% }
+% legend("bottomleft", legend = levels(kTab$socBranch), col = 1:4, pch = 1:4, lty = 1:4)
+% abline(h = 0)
+% axis(4, las = 2)
+% @
+
+Then by {\tt hisclass}, see Figure~\ref{fig:plotmhcTMFR1}.
+
+<<plotmhcTMFR1, fig.cap = "TFMR by hisclass and period, successful births.">>=
+##source("R/getMmhc.R")
+y <- matrix(0, ncol = 8, nrow = 6)
+##kTab <- kTab[kTab$region == "ske", ]
+pp <- levels(kTab$period)
+for (i in 2:8){
+    res <- getMmhc(kTab[kTab$period == pp[i], ])
+    for (j in 1:6){
+        y[j, i] <- tmfrCT(res[j, 1], res[j, 2])
+    }
+    }
+x <- c(1865, 1890, 1905, 1915, 1925, 1935, 1945)
+plot(x, y[1, -1], col = 1, type = "b", ylab = "TMFR", ylim = c(0, 10),
+     axes = FALSE, xlab = "Period", xlim = c(1851, 1951), lwd = 2)
+axis(1, at = c(1851, x, 1950), las = 2)
+axis(2)
+axis(4)
+box()
+for (j in 2:6){
+    lines(x, y[j, -1], col = j, type = "b", pch = j, lty = j, lwd = 2)
+}
+legend("bottomleft", legend = levels(kTab$hisclass), col = 1:6, pch = 1:6, lty = 1:6, cex = 0.75)
+abline(h = 0)
+@
+
+<<plotmhcTMFR301, fig.cap = "TFMR at 30 by hisclass and period, successful births.">>=
+##source("R/getMmhc.R")
+y <- matrix(0, ncol = 8, nrow = 6)
+##kTab <- kTab[kTab$region == "ske", ]
+pp <- levels(kTab$period)
+for (i in 2:8){
+    res <- getMmhc(kTab[kTab$period == pp[i], ])
+    for (j in 1:6){
+        y[j, i] <- tmfrCT(res[j, 1], res[j, 2], 30)
+    }
+    }
+x <- c(1865, 1890, 1905, 1915, 1925, 1935, 1945)
+plot(x, y[1, -1], col = 1, type = "b", ylab = "TMFR", ylim = c(0, 6),
+     axes = FALSE, xlab = "Period", xlim = c(1851, 1951), lwd = 2)
+axis(1, at = c(1851, x, 1950), las = 2)
+axis(2)
+axis(4)
+box()
+for (j in 2:6){
+    lines(x, y[j, -1], col = j, type = "b", pch = j, lty = j, lwd = 2)
+}
+legend("bottomleft", legend = levels(kTab$hisclass), col = 1:6, pch = 1:6, lty = 1:6, cex = 0.75)
+abline(h = 0)
+@
+
+\subsubsection{By cohort}
+
+
+<<cohorttmfr1, fig.cap = "Hej, successful births.">>=
 source("R/kohort.R")
 y <- matrix(0, nrow = 6, ncol = 5)
 koh <- levels(kids$cohort)
