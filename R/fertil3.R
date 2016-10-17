@@ -103,7 +103,7 @@ fertil3 <- function(){
     infants$enter <- 0
     infants$enter[-1] <- infants$exit[-NROW(infants)]
     infants$enter[infants$lopnr == 1] <- infants$from[infants$lopnr == 1]
-    infants$event <- 1
+    infants$event <- TRUE
     
     ## Put on 'last' record by copying present last record
     
@@ -138,7 +138,7 @@ fertil3 <- function(){
                            !(per$id %in% infants$id)]
     
     chless <- unique(obs$id[obs$id %in% chless & obs$civst == "married"])
-    cat("No. of childless is ", length(chless), "\n")
+    ##cat("No. of childless is ", length(chless), "\n")
     
     nomothers <- obs[obs$id %in% chless & obs$civst == "married", ]
     
@@ -205,13 +205,25 @@ fertil3 <- function(){
                                 as.numeric(toTime(ch.birthdate)) < 1)
     rownames(kids2) <- 1:NROW(kids2)
     
-    kids2$f.hisclass <- unlist(with(kids2, tapply(hisclass, id, pushForward)))
-    return(kids2)                    
-                        
+    kids2$hisclass <- unlist(with(kids2, tapply(hisclass, id, pushForward)))
+    kids2$socst <- unlist(with(kids2, tapply(socst, id, pushForward)))
+    ##kids2$socBranch <- unlist(with(kids2, tapply(socBranch, id, pushForward)))
+    kids2$parish <- factor(kids2$nofrs, labels = c("Umeå.land", "Umeå", 
+                                                   "Skellefteå.land", "Skellefteå",
+                                                   "Byske", "Bureå", "Yttersfors",
+                                                   "Norsjö", "Jörn", "Malå"))
+    levels(kids2$parish)[7] <- "Byske" # Yttersfors --> Byske
+    kids2 <- kids2[!is.na(kids2$hisclass), ]
+    
+    save(kids2, file = "data/kids2.rda")   
+    cat("Saved in 'data/kids2.rda'\n")
+    return(dim(kids2))                    
     ##return(nomothers)
     ##return(infants)
     
+########################### This is the end !!!!!!! ##########################
     
+    ##This is old stuff:
     married <- skum::obs[with(skum::obs, birthdate > 1800.99 &        ## NOTE
                             birthdate < 1935 & sex == "female" &
                                 civst == "married"), ]
