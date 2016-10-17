@@ -1,0 +1,6 @@
+#!/bin/bash -eu
+R --no-restore -e "library(knitr); knit('fert_ssha16.Rnw')"
+R CMD pdflatex fert_ssha16.tex
+bibtex fert_ssha16
+pdflatex fert_ssha16
+pdflatex fert_ssha16
