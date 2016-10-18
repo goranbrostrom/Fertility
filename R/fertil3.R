@@ -107,6 +107,8 @@ fertil3 <- function(){
     
     ## Put on 'last' record by copying present last record
     
+    ##return(infants)
+    infants <- rc(infants)
     last <- infants[infants$lopnr == infants$antrec, ]
     last$enter <- last$exit
     last$exit <- last$to
@@ -125,7 +127,7 @@ fertil3 <- function(){
     ## Clean:
     infants$foddat <- infants$max.exit <- infants$min.exit <- NULL   
 
-##    return(infants)
+    ##return(infants)
     ## Now the childless married must be put on board!
     
     chless <- per$id[!is.na(per$foddat) &
@@ -147,7 +149,7 @@ fertil3 <- function(){
     nomothers$exit <- pmin(nomothers$exit, 50)
     nomothers$enter <- pmax(nomothers$enter, 20)
     
-    ## return(nomothers)
+    ##return(nomothers)
     kids2 <- data.frame(id = infants$id,
                         birthdate = infants$birthdate,
                         ch.id = infants$ch.id,
@@ -215,9 +217,10 @@ fertil3 <- function(){
     levels(kids2$parish)[7] <- "Byske" # Yttersfors --> Byske
     kids2 <- kids2[!is.na(kids2$hisclass), ]
     
-    save(kids2, file = "data/kids2.rda")   
-    cat("Saved in 'data/kids2.rda'\n")
-    return(dim(kids2))                    
+    kids <- kids2
+    save(kids, file = "data/kids.rda")   
+    cat("Saved 'kids' in 'data/kids.rda'!!\n")
+    return(dim(kids))                    
     ##return(nomothers)
     ##return(infants)
     
