@@ -111,15 +111,15 @@ Where in Sweden? See map in Figure~\ref{fig:map2}.
 \end{center}
 \end{figure}
 
-% See the map at Figure~\ref{fig:map}.
+See the map at Figure~\ref{fig:map}.
 % 
-% \begin{figure}
-% \begin{center}  
-% \includegraphics[height=18cm]{myfigs/skum.pdf}
-% \caption{The Skellefte{\aa} and Ume{\aa} regions.}
-% \label{fig:map}
-% \end{center}
-% \end{figure}
+\begin{figure}
+\begin{center}  
+\includegraphics[height=17cm]{myfigs/SKEUME161017.pdf}
+\caption{The Skellefte{\aa} and Ume{\aa} regions.}
+\label{fig:map}
+\end{center}
+\end{figure}
 
 \subsection{Skellefteå}
 
@@ -182,8 +182,12 @@ Choice of time scale, and how to handle the dynamic aspects of the counting
 process. 
 
 <<getdata>>=
-load("data/kids2.rda")  # NOTE the shift to 'kids2' !!!!!!! 
-kids <- kids2
+##load("data/kids2.rda")  # NOTE the shift to 'kids2' !!!!!!! 
+##kids <- kids2
+## 'Cleaned': 'kids' is the one to use:
+
+load("data/kids.rda")
+
 library(skum)
 library(eha)
 ## Factor hisclass into six groups:
@@ -406,7 +410,7 @@ any) after the onset of the first marriage and after age 20 are recorded.
 
 Figure~\ref{fig:lexis} shows the sampling frame. The parallelogram is the basis for \emph{cohort} analysis, and the rectangle correspondingly for \emph{period} analysis.
 
-<<lexis, fig.height = 3.3, fig.cap = "The sampling frame.">>=
+<<lexis, fig.height = 3.3, fig.cap = "The sampling frame (solid lines)n.">>=
 plot(c(1851, 1951), c(50, 50), type = "l", xlim = c(1821, 1951), ylim = c(20, 50), col = "blue", 
      xlab = "Year", ylab = "Age", axes = FALSE)
 axis(1, at = c(1821, 1851, 1901, 1921, 1951))
@@ -415,8 +419,8 @@ box()
 abline(h = 0)
 lines(c(1851, 1951), c(49.8, 49.8), col = "red")
 lines(c(1821, 1851), c(20, 50), col = "red")
-lines(c(1921, 1951), c(20, 50), col = "red")
-lines(c(1851, 1851), c(20, 50), col = "blue")
+lines(c(1921, 1951), c(20, 50), col = "red", lty = 2)
+lines(c(1851, 1851), c(20, 50), col = "blue", lty = 2)
 lines(c(1821, 1921), c(20, 20), col = "red")
 lines(c(1851, 1951), c(20.2, 20), col = "blue")
 lines(c(1951, 1951), c(20, 50), col = "blue")
