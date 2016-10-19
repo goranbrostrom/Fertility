@@ -195,7 +195,7 @@ fertil3 <- function(){
 
     kids2 <- rbind(nokids, kids2)
 
-    kids2 <- kids2[order(kids2$birthdate, kids2$id, kids2$ch.birthdate), ]
+    kids2 <- kids2[order(kids2$id, kids2$ch.birthdate), ]
     
     kids2 <- rc(kids2)
     indx <- match(kids2$ch.id, per$id)
