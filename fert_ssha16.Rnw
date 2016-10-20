@@ -21,7 +21,7 @@ NA,fig.height = 4)##$
 \title{The effect of socioeconomic status on marital fertility during 
 the demographic transition, northern Sweden 1821--1950}
 \author{Göran Broström}
-\date{3 October, 2016}
+\date{19 October, 2016}
 
 \begin{document}
 
@@ -34,7 +34,7 @@ studied.
 
 \end{abstract}
 
-\section*{Introduction}
+\section{Introduction}
 
 The impact of the family's socioeconomic status at marriage
 on later child births during the demographic transition (1821--1950) is
@@ -91,6 +91,7 @@ follow up on that track.
 
 \section{The study area}
 
+Our data cover the time period 1821--1950, see Figure-\ref{fig:lexis}, and the geographical area defined by the Skellefteå and Umeå towns with surrounding rural parishes.
 Where in Europe? See map in Figure~\ref{fig:map3}.
 \begin{figure}
 \begin{center}  
@@ -99,9 +100,6 @@ Where in Europe? See map in Figure~\ref{fig:map3}.
 \label{fig:map3}
 \end{center}
 \end{figure}
-
-
-
 Where in Sweden? See map in Figure~\ref{fig:map2}.
 \begin{figure}
 \begin{center}  
@@ -110,8 +108,7 @@ Where in Sweden? See map in Figure~\ref{fig:map2}.
 \label{fig:map2}
 \end{center}
 \end{figure}
-
-See the map at Figure~\ref{fig:map}.
+A detailed map of the parishes is found in Figure~\ref{fig:map}. The Skellefteå region was one big parish in the eighteenth century. It successivey split up in smaller parishes, and Figure~\ref{fig:map} shows the status in the year 1915. In our data, \emph{Fällfors} is part of \emph{Byske}, and \emph{Lövånger} and \emph{Burträsk} are not present at all.
 % 
 \begin{figure}
 \begin{center}  
@@ -121,6 +118,31 @@ See the map at Figure~\ref{fig:map}.
 \end{center}
 \end{figure}
 
+The development of population size in the two regions are shown in Figure~\ref{fig:plotpopsize}.
+
+<<popsize,cache=TRUE>>=
+library(skum)
+xs <- 1801:1950
+skel <- numeric(150)
+xu <- 1901:1950
+ume <- numeric(50)
+for (i in 1:150){
+    skel[i] <- with(obs[obs$region == "ske", ], sum(birthdate + enter < 1800 + i & birthdate + exit >= 1800 + i))
+}
+for (i in 1:50){
+    ume[i] <- with(obs[obs$region == "ume", ], sum(birthdate + enter < 1900 + i & birthdate + exit >= 1900 + i))
+}
+@
+
+<<plotpopsize, fig.height = 5, fig.cap = "Population size by year and region.">>=
+plot(xs, skel / 1000, type = "l", col = "red", ylim = c(0, 70), ylab = "Population / 1000", 
+     xlab = "Year", las = 1)
+axis(4, las = 1)
+lines(xu, ume /1000, type = "l", col = "blue")
+text(1870, 40, "Skellefteå", col = "red")
+text(1925, 15, "Umeå", col = "blue")
+abline(h = 0)
+@
 \subsection{Skellefteå}
 
 At the outset of the study the region consisted of one large rural parish,
@@ -191,7 +213,7 @@ load("data/kids.rda")
 kids.orig <- kids ## Nice to have later!
 
 library(skum)
-library(eha)
+##library(eha)
 ## Factor hisclass into six groups:
 kids$hisclass <- cut(kids$hisclass, c(0, 1.5, 2.5, 3.5, 4.5, 5.5, 7.5), 
                      labels = c("elite", "middle", "farmer", "skilled", 
@@ -481,7 +503,7 @@ The following variables are of primary interest in our analysis.
 \item[region] Birth region, Skellefteå or Umeå.
 \item[urban] {\tt TRUE} if birth in one of the towns Skellefteå and Umeå, otherwise {\tt FALSE}.
 \item[parish] one of {\tt Umeå (town)}, {\tt Umeå lands (rural}, {\tt
-    Skellefteå (town)}, {\tt Skellefteå lands (rural)}, 
+    Skellefteå (town)}, {\tt Skellefteå lands (rural)}, {\tt Byske}, {\tt Bureå}, {\tt Norsjö}, {\tt Jörn}, and {\tt Malå}.
 \item[birthdate] A real number indicating mother's birth date.
 \item[ch.birthdate] The birth date of the child.
 \item[deathdate] The death date of the child.
@@ -523,7 +545,45 @@ xtable(head(kTab[, names(kTab)[2:8]]), caption = "First rows in compact multiway
 xtable(head(kTab[, names(kTab)[-(2:8)]]), caption = "First rows in compact multiway table. Columns representing response and model (CT) constants.", label = "tab:compact2", digits = c(0, 0, 0, 0, 3, 3, 3))
 @
 
-There are 225\,792 unique combinations of the levels of the expanatory variables, but many of them are either structural or random zeros, so the total number of observed combinations is only 6\,228. The original data frame contains 300\,579 records. 
+In Figure~\ref{fig:aggre} is shown how the \emph{age-period-cohort} plane is split up for each combination of the levels of the explanatory variables.
+
+<<aggre, fig.height = 3.5, fig.cap = "Lexis split. In each sub-area the number of births and total exposure time are calculated.", fig.scap = "Lexis split.">>=
+plot(c(1851, 1951), c(50, 50), type = "l", xlim = c(1821, 1951), ylim = c(20, 50), col = "blue", 
+     xlab = "Year", ylab = "Age", axes = FALSE)
+axis(1, at = c(1821, 1851, 1901, 1921, 1951))
+axis(2, las = 1)
+box()
+abline(h = 0)
+lines(c(1851, 1951), c(49.8, 49.8), col = "red")
+lines(c(1821, 1851), c(20, 50), col = "red")
+lines(c(1921, 1951), c(20, 50), col = "red", lty = 2)
+lines(c(1851, 1851), c(20, 50), col = "blue", lty = 2)
+lines(c(1821, 1921), c(20, 20), col = "red")
+lines(c(1851, 1951), c(20.2, 20), col = "blue")
+lines(c(1951, 1951), c(20, 50), col = "blue")
+## Ages:
+lines(c(1826, 1951), c(25, 25), lty = 2)
+lines(c(1831, 1951), c(30, 30), lty = 2)
+lines(c(1836, 1951), c(35, 35), lty = 2)
+lines(c(1841, 1951), c(40, 40), lty = 2)
+lines(c(1846, 1951), c(45, 45), lty = 2)
+## Cohorts:
+lines(c(1841, 1871), c(20, 50), lty = 2)
+lines(c(1861, 1891), c(20, 50), lty = 2)
+lines(c(1881, 1911), c(20, 50), lty = 2)
+lines(c(1901, 1931), c(20, 50), lty = 2)
+lines(c(1921, 1951), c(20, 50), lty = 2)
+lines(c(1941, 1951), c(20, 30), lty = 2)
+## Period:
+lines(c(1881, 1881), c(20, 50), lty = 2)
+lines(c(1901, 1901), c(20, 50), lty = 2)
+lines(c(1911, 1911), c(20, 50), lty = 2)
+lines(c(1921, 1921), c(20, 50), lty = 2)
+lines(c(1931, 1931), c(20, 50), lty = 2)
+lines(c(1941, 1941), c(20, 50), lty = 2)
+@
+
+There are 225\,792 unique combinations of the levels of the expanatory variables and the age-period-cohort combinations, but many of them are either structural or random zeros, so the total number of observed combinations is only 6\,228. The original data frame contains 300\,579 records. 
 
 Thus, the analyses of our problem gain hugely in speed by using the aggregated tables, and further, it makes it very easy to implement the Coale-Trussell model. The worries are: Are we losing information? Will our results be biased?
 
@@ -533,7 +593,7 @@ That is the good news. The back side is that the "pure noise" can be used to jud
 
 In our specific case, with the piecewise constant hazards model, we can utilize the fact that the likelihood function that is given by a survival analysis is exactly the same as if we interpret the number of births in each of our cells as following a \emph{Poisson} distribution and write down the resulting likelihood function. But note carefully that this does \emph{not} imply that the numbers of births really follow a Poisson distribution (they do not). Thus, we can utilize ordinary software for Poisson regression and get very efficient and fast parameter estimation. The (small) price we have to pay is that for instance estimates of the baseline hazard function are not coming automatically but require some thought. 
 
-These ideas are not new, see e.g.\  \citet{gb85}. Long before software for survival analysis (read: Cox regression) was commonly available, in the late 1970s, Jan M.\ Hoem taught us how to do this with software analysing loglinear models for contigency tables, see \citet{hoem87,jmh11} and \citet{nldo81}. This is interesting: Because there were no good statistical software for survival analysis around 1980, innovative methods like the log-linear models were found to work outside their so-called natural domain. When later new software appeared for direct survival analysis these methods were forgotten (more or less). Now they are found useful again, but for a different reason: We are analysing larger and larger data sets, and raw calculation ties up too much time and other resources, so by thinking and remembering the theory about sufficient statistics, we can do things much faster and with much smaller, and anonymous, data sets. 
+These ideas are not new, see e.g.\  \citet{gb85}. Long before software for survival analysis (read: Cox regression) was commonly available, in the late 1970s, Jan M.\ Hoem taught us how to do this with software analysing loglinear models for contigency tables, see \citet{hoem87,jmh11} and \citet{nldo81}. This is interesting: Because there were no good statistical software for survival analysis around 1980, innovative methods like the log-linear models were found to work outside their so-called natural domain. When later new software appeared for direct survival analysis these methods were forgotten (more or less). Now they are found useful again, but for a different reason: We are analysing larger and larger data sets, and raw calculation ties up too much time and other resources, so by thinking and remembering the theory about sufficient statistics, we can do things much faster and with much smaller, and anonymous, data sets (tables). 
 
 \section{Analysis}
 
@@ -573,7 +633,23 @@ We consider the development of a stopping behavior both by period and by
 cohort. It is governed by the {\tt 'm'} of \citet{ct78}. Similarly, the
 spacing behavior is measured by their {\tt 'M'}. We show the delopment by
 period and by cohort, in both cases for each {\tt hisclass}, adjusted for
-{\tt marriage age and parish}.  
+{\tt marriage age} and {\tt parish}.  
+
+The results are only shown graphically, and the reason is that there are many three-way interactions involved, see Table~\ref{tab:sigthree}.
+
+<<threeway>>=
+fit <- glm(event ~ offset(log(exposure * N)) + V * (marAge * period + marAge * parish + period * parish), family = poisson, data = kTab)
+@
+
+
+<<sigthree, results='asis'>>=
+df <- drop1(fit, test = "LRT")
+xtable(df, caption="Likelihood Ratio tests of threeway interaction effects.", label = "tab:sigthree")
+@
+
+The variable $V$ has the regression coefficient $m$, Coale-Trussell's "little m".
+This model contains no less than 240 estimated coefficients: You do not want to see them in print, and I certainly do not want to show them. Instead, first I show the statistical significance of the threeway interactions in 
+Table~\ref{tab:sigthree}. Then, in what follows, the results are graphically reported.
 
 \subsubsection{By period}
 
