@@ -43,13 +43,14 @@ fertility regime
 is uniform over socioeconomic class, and if not, in which order did the transition 
 take place. The study area consists of two regions in northern Sweden, Skellefteå and Umeå.
 
+\section{Background}
+
+This research question is not new.
 \citet{kom97} discussed contemporary explanation models of the fertility
 transition and argued that there cannot be one explanation alone.
 More recent studies of Swedish circumstances were given by \citet{drsc14}
-and \citet{tbdr14} and \citet{bras14} presented a similar study from the
-Netherlands. One convincing theory is that the fertility decline was a
-necessary result of the mortality decline, and in the full paper we will
-follow up on that track. 
+and \citet{tbdr14}. One perhaps convincing theory is that the fertility decline was a
+necessary result of the mortality decline. 
 
 %% Note that we use 'data/kids.rda' now!!
 %' 
