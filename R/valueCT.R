@@ -20,7 +20,8 @@ valueCT <- function(dat){
         head <- paste("M = ", round(exp(fit11$coef[1]), 2),
                       ", m = ", round(fit11$coef[2], 2)) 
         plot(x, y1, type = "l", lty = 1, main = head, xlab = "Age",
-             ylab = "Cum. Hazards", ylim = c(0, 8.5))
+             ylab = "Cum. Hazards", ylim = c(0, 8.5), las = 1)
+        axis(4, las = 1)
         lines(x, y2, col = "red", lty = 2)
     }
 
