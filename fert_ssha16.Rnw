@@ -200,9 +200,16 @@ at the Demographic Data Base, Umeå University. The covered time period is
 shorter than the one for the Skellefteå region in that registration starts
 around January 1, 1901.
 
-Umeå is older than Skellefteå as a town: The birth year of the town Umeå is generally recognized as 1622.
-Umeå became early a center for administration and education, but Umeå University is not a fact before 1963. 
-Early in the twentieth century, two military regiments were placed in Umeå, and they remained there during the first half of the century.
+Umeå is older and substantially larger than Skellefteå as a town: The birth
+year of the town Umeå is 
+generally recognized as 1622. 
+Umeå became early a center for administration and education, but Umeå
+University is not a fact before 1963.  
+Early in the twentieth century, two military regiments were placed in Umeå,
+and they remained there during the first half of the century. 
+The population size as defined in our datasets was 19\,000 on January 1,
+1900, 33\,000 on 
+January 1, 1950 and 104\,000 when the end of the century.
 
 The surrounding rural area is similar in demography and economy to the corresponding parts of the Skellefteå region. 
 \section{Models}
