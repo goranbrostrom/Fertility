@@ -1,0 +1,95 @@
+\documentclass[t,a4paper]{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{natbib}
+\usepackage{url}
+%%\usepackage{a4wide}
+
+%%\usepackage[figuresonly]{endfloat}
+%%\renewcommand{\efloatseparator}{\mbox{}}
+
+\usepackage{color}
+
+\newcommand{\emp}[1]{\textcolor{blue}{#1}}
+
+\usetheme{Singapore}% best choice.
+  \setbeamercovered{transparent}%
+
+\newcommand{\R}{{\bf R}}
+\newcommand{\code}[1]{{\tt #1}}
+
+\bibliographystyle{apalike}
+
+<<setup, include = FALSE>>=
+knitr::opts_chunk$set(cache=TRUE,echo=FALSE,message=FALSE,warning=FALSE,comment=
+NA,fig.height = 4)##$
+@
+
+
+\title{The effect of socioeconomic status on marital fertility during 
+the demographic transition, northern Sweden 1821--1950}
+\author{Göran Broström}
+\date{19 October, 2016}
+
+\begin{document}
+
+\maketitle
+
+
+\begin{frame}{What?}
+
+\begin{itemize}
+\item \emp{What} is the impact of the family's \emp{socioeconomic status} at \emp{marriage}
+on later \emp{child births} during the demographic transition?
+
+\item \emp{What} socioeconomic class(es) (if any) are \emp{forerunners} in the
+  transition from high to low fertility?
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Where?}
+  
+\includegraphics[height=5cm]{myfigs/geo_we.pdf}\includegraphics[height=7cm]{myfigs/sweden.pdf}  
+\end{frame}  
+
+\begin{frame}{Where?}
+  
+\includegraphics[height=8cm]{myfigs/skum17.pdf}
+
+\end{frame}
+
+\begin{frame}{When?}
+  
+\includegraphics[width=11cm]{figure/lexis-1.pdf}
+  
+\end{frame}  
+
+\begin{frame}{Background}
+
+\begin{itemize}  
+\item \emp{\citet{kom97}} discussed contemporary explanation models of the
+    fertility 
+transition and argued that there cannot be one explanation alone.
+
+\item \emp{\citet{drsc14}} and \emp{\citet{tbdr14}}  
+discussed  Swedish circumstances (Scania).
+\begin{itemize}
+  \item Workshop in Alghero, Sardinia 2012.
+    \end{itemize}
+\item One \emp{perhaps} convincing theory is that the \emp{fertility decline} was a
+necessary result of the \emp{mortality decline}. 
+
+\end{itemize}
+
+\end{frame}
+
+
+
+\begin{frame}{References}
+  \bibliography{surv.bib}
+\end{frame}
+
+\end{document}
