@@ -437,9 +437,9 @@ Figure~\ref{fig:lexis} shows the sampling frame. The parallelogram is the basis 
 
 <<lexis, fig.height = 3.3, fig.cap = "The sampling frame (solid lines).">>=
 plot(c(1851, 1951), c(50, 50), type = "l", xlim = c(1821, 1951), ylim = c(20, 50), col = "blue", 
-     xlab = "Year", ylab = "Age", axes = FALSE)
+     xlab = "Year", ylab = "Age", axes = FALSE, las = 1)
 axis(1, at = c(1821, 1851, 1901, 1921, 1951))
-axis(2)
+axis(2, las = 1)
 box()
 abline(h = 0)
 lines(c(1851, 1951), c(49.8, 49.8), col = "red")
