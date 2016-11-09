@@ -1,4 +1,4 @@
-\documentclass[a4paper,11pt]{article}
+\documentclass[a4paper,11pt,titlepage,twoside]{article}
 
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
@@ -6,7 +6,7 @@
 \usepackage{natbib}
 \usepackage{url}
 \usepackage{a4wide}
-
+\renewcommand{\bibsection}{\section{\bibname}}
 \usepackage[figuresonly]{endfloat}
 \renewcommand{\efloatseparator}{\mbox{}}
 
@@ -19,9 +19,17 @@ NA,fig.height = 4)##$
 
 
 \title{The effect of socioeconomic status on marital fertility during 
-the demographic transition, northern Sweden 1821--1950}
-\author{Göran Broström}
-\date{19 October, 2016}
+the demographic transition, northern Sweden 1821--1950\footnote{Paper
+  presented at the 41st Annual Meeting of the Social Science History
+  Association: Chicago, November 17--20, 2016.}}
+\author{Göran Broström\footnote{email: \texttt{goran.brostrom@umu.se}} \\
+{\sc Cedar}, Umeå University \\
+SE-901\,87 Umeå, Sweden}% \\
+%\texttt{goran.brostrom@umu.se}}
+%\email{goran.brostrom@umu.se}
+
+\date{November 19, 2016}
+
 
 \begin{document}
 
@@ -30,9 +38,20 @@ the demographic transition, northern Sweden 1821--1950}
 \begin{abstract}
 The impact of the family's socioeconomic status at marriage
 on later child births during the demographic transition (1821--1950) is
-studied.
+studied. It is found that the fertility decline starts in the upper classes
+in the decades prior to 1900. The farmers are characterized by relatively
+high fertility in high ages even in the end of the study period.
+
+A stopping behavior seems to dominate a spacing one, especially along
+cohorts. The effect of declining infant mortality over time is minor.
 
 \end{abstract}
+
+\tableofcontents
+
+%\listoffigures
+
+\newpage
 
 \section{Introduction}
 
@@ -49,8 +68,10 @@ This research question is not new.
 \citet{kom97} discussed contemporary explanation models of the fertility
 transition and argued that there cannot be one explanation alone.
 More recent studies of Swedish circumstances were given by \citet{drsc14}
-and \citet{tbdr14}. One perhaps convincing theory is that the fertility decline was a
-necessary result of the mortality decline. 
+and \citet{tbdr14}. One perhaps convincing theory is that the fertility
+decline was a necessary result of the mortality decline. For a detailed and
+initiated overview of the research field, see the aforementioned papers and
+also two thoughtful papers by \citet{ni92,ni11}.  
 
 %% Note that we use 'data/kids.rda' now!!
 %' 
@@ -92,7 +113,7 @@ necessary result of the mortality decline.
 
 \section{The study area}
 
-Our data cover the time period 1821--1950, see Figure-\ref{fig:lexis}, and the geographical area defined by the Skellefteå and Umeå towns with surrounding rural parishes.
+Our data cover the time period 1821--1950, see Figure~\ref{fig:lexis}, and the geographical area defined by the Skellefteå and Umeå towns with surrounding rural parishes.
 Where in Europe? See map in Figure~\ref{fig:map3}.
 \begin{figure}
 \begin{center}  
@@ -109,7 +130,7 @@ Where in Sweden? See map in Figure~\ref{fig:map2}.
 \label{fig:map2}
 \end{center}
 \end{figure}
-A detailed map of the parishes is found in Figure~\ref{fig:map}. The Skellefteå region was one big parish in the eighteenth century. It successivey split up in smaller parishes, and Figure~\ref{fig:map} shows the status in the year 1915. In our data, \emph{Fällfors} is part of \emph{Byske}, and \emph{Lövånger} and \emph{Burträsk} are not present at all.
+A detailed map of the parishes is found in Figure~\ref{fig:map}. The Skellefteå region was one big parish in the eighteenth century. It successively split up in smaller parishes, and Figure~\ref{fig:map} shows the status in the year 1915. In our data, \emph{Fällfors} is part of \emph{Byske}, and \emph{Lövånger} and \emph{Burträsk} are not present at all.
 % 
 \begin{figure}
 \begin{center}  
@@ -194,15 +215,36 @@ fluctuated between three and six per cent during the nineteenth century
 \subsection{Umeå}
 
 The Umeå region is one of the newest in the collection of regions digitized
-at the Demographic Data Bbase, Umeå University. The covered time period is
+at the Demographic Data Base, Umeå University. The covered time period is
 shorter than the one for the Skellefteå region in that registration starts
 around January 1, 1901.
 
+Umeå is older and substantially larger than Skellefteå as a town: The birth
+year of the town Umeå is 
+generally recognized as 1622. 
+Umeå became early a center for administration and education, but Umeå
+University is not a fact before 1963.  
+Early in the twentieth century, two military regiments were placed in Umeå,
+and they remained there during the first half of the century. 
+The population size as defined in our data sets was 19\,000 on January 1,
+1900, 33\,000 on 
+January 1, 1950 and 104\,000 when the end of the century.
+
+The surrounding rural area is similar in demography and economy to the corresponding parts of the Skellefteå region. 
 \section{Models}
 The statistical modeling is conveniently done in the framework of
 counting (birth) processes, but there are still choices to contemplate:
 Choice of time scale, and how to handle the dynamic aspects of the counting
-process. 
+process. In most of the earlier attempts to investigate changes in
+\emph{stopping} and \emph{spacing} behavior over time, models for
+\emph{birth intervals} have been employed
+\citep{bedr06,drsc14,tbdr14,bras14}, but in my opinion this approach is too
+indirect. Instead I argue for the \emph{counting process} approach, where
+each married woman contributes an age interval (or a union of such
+intervals), starting at age of marriage or age 20, whichever comes
+\emph{last}, and ends with the dissolution of marriage or age 50, whichever
+comes \emph{first}. We also allow intervals to start and end with migration
+events. In the so defined interval, birth time (age) points are recorded.  
 
 <<getdata>>=
 ##load("data/kids2.rda")  # NOTE the shift to 'kids2' !!!!!!! 
@@ -260,6 +302,12 @@ for (i in 1:6){
 
 @
 
+An obvious alternative for studying marital fertility is to start the clock
+at the \emph{date of marriage}, but it complicates things in some ways, one
+being that it will be difficult (but not impossible) to apply the
+Coale-Trussell model \citep{ct78}. Therefore, in the following, the basic
+time scale is \emph{age}.
+
 \subsection{Fertility as a counting process}
 
 We define
@@ -272,15 +320,19 @@ as the \emph{number of births before and including age $t$ and after
 $i$. By age we mean \emph{exact age}, measured by a precision of a day, but with
 \emph{time unit year}. Thus $\{N_i, \, i = 1, 2, \ldots\}$ are \emph{counting processes} with jumps of size
 one (except for multiple births) at the age of the mother at deliveries. As 
-an example, see Figure~\ref{fig:countbir} for the marital fertility history
-of mother No.\ 55: She married at age 22, emigrated at age 38, and in
-between she had five births. See 
+an example, see 
+Figure~\ref{fig:countbir} 
+%the figure 
+for the marital fertility history
+of mother No.\ 233: She married at age 25, died at age 46, and in
+between she had seven births. See 
 \citet{aalen08} for details on the counting process theory.
 
-<<countbir, echo=FALSE,fig.height=3, fig.cap = "Birth history as a counting process, woman with id 55.">>=
+%<<countbir, echo=FALSE,fig.height=3>>=
+<<countbir, echo=FALSE,fig.height=3, fig.cap = "Birth history as a counting process, woman with id 233.">>=
 source("R/plotid.R")
 
-plotid(kids.orig, 55)
+plotid(kids.orig, 233)
 @
  $N(t)$ is a \emph{right-continuous} function, meaning essentially that at
 jump points, the value is the larger of the two possible values. $N(t-)$
@@ -319,9 +371,9 @@ We will assume a piecewise constant hazard model on  the age span 20--50,
 with jumps every fifth year. We apply the restriction proposed by
 \citet{ac71} and \citet{ct78}: 
 
-\begin{equation}
+\begin{equation*}
 \lambda(t) = M n(t) e^{m v(t)}, \quad 20 \le t < 50,
-\end{equation}
+\end{equation*}
 where the piecewise constant functions $n, v$ are given in
 Table~\ref{tab:cotr}. 
 
@@ -386,14 +438,16 @@ oldpar <- par(mfrow = c(1, 2))
 ## (0, 1):
 y <- cumsum(c(0, N)) * 5 ##* 0.637
 x <- seq(20, 50, by = 5)
-plot(x, y, type = "l", col = "blue", xlab = "Age", ylab = "Cumulative hazards")
+plot(x, y, type = "l", col = "blue", xlab = "Age", ylab = "Cumulative hazards", las = 1)
+axis(4, las = 1)
 y <- cumsum(c(0, N * exp(V))) * 5 * 1.57
 lines(x, y, col = "red", lty = 2)
 text(26, 8.3, "(m = 1, M = 1.57)", col = "red", cex = 0.75)
 text(40, 4.8, "(m = 0, M = 1)", col = "blue", cex = 0.75)
 abline(h = 0)
 plot(c(20, 25), c(N[1], N[1]), col = "blue", type = "l", xlim = c(20, 50), ylim = c(0, 0.75), 
-     xlab = "Age", ylab = "Hazards")
+     xlab = "Age", ylab = "Hazards", las = 1)
+axis(4, las = 1)
 for(i in 2:6){
     lines(x[i:(i + 1)], c(N[i], N[i]), col = "blue")
     lines(c(x[i], x[i]), N[(i-1):i], col = "blue", lty = 3)
@@ -428,18 +482,19 @@ model in favor of the PCH.
 
 Data come from The Demographic Data Base, Centre for Demographic and Ageing 
 Research ({\sc Cedar}) at Umeå University, Sweden, and cover the Skellefteå region,
-situated in the north of Sweden \citep{wee16}, and the Umeå region, situated 100 km south of Skellefteå. All women, ever married and born between 1 January 1801 and 31 December 1935 and present in the region at age 15, are included in the
-data set and followed throghout their fertility period, but not after
+situated in the north of Sweden \citep{wee16}, and the Umeå region, situated 100 km south of Skellefteå. All women, ever married and born between 1 January 1801 and 31 December 1935, are included in the
+data set and followed throughout their fertility period, but not after
 December 31, 1950. For each woman, the exact timing of her deliveries (if
 any) after the onset of the first marriage and after age 20 are recorded. 
 
 Figure~\ref{fig:lexis} shows the sampling frame. The parallelogram is the basis for \emph{cohort} analysis, and the rectangle correspondingly for \emph{period} analysis.
 
-<<lexis, fig.height = 3.3, fig.cap = "The sampling frame (solid lines).">>=
+<<lexis, fig.height = 3.3, fig.cap = "The sampling frame (solid lines) by married woman's age.">>=
 plot(c(1851, 1951), c(50, 50), type = "l", xlim = c(1821, 1951), ylim = c(20, 50), col = "blue", 
      xlab = "Year", ylab = "Age", axes = FALSE, las = 1)
 axis(1, at = c(1821, 1851, 1901, 1921, 1951))
 axis(2, las = 1)
+axis(4, las = 1)
 box()
 abline(h = 0)
 lines(c(1851, 1951), c(49.8, 49.8), col = "red")
@@ -451,52 +506,60 @@ lines(c(1851, 1951), c(20.2, 20), col = "blue")
 lines(c(1951, 1951), c(20, 50), col = "blue")
 @
 
-Central covariates are family {\sc Hisclass}, {\tt social branch} (with categories {\tt official}, {\tt farm\-ing}, {\tt business} and {\tt worker}), {\tt mother's age at marriage}, and mother's {\tt birthdate}. The first six rows in our data file are (with selected columns) shown in Table~\ref{tab:sixrow}.
+Central covariates are family {\sc Hisclass}, %{\tt social branch} (with categories {\tt official}, {\tt farm\-ing}, {\tt business} and {\tt worker}), 
+{\tt mother's age at marriage}, and mother's {\tt birth\-date}. The rows corresponding to woman No.\ 233 in our data file are (with selected columns) shown in Table~\ref{tab:sixrow}.
 <<sixrow,echo=FALSE,results='asis'>>=
 ##load("data/kids.rda")
 kids$event <- as.logical(kids$event)
 library(xtable)
-fert1 <- kids  ## KOLLA!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+fert1 <- kids.orig  ## KOLLA!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 fert1$enter <- round(fert1$enter, 3)
 fert1$exit <- round(fert1$exit, 3)
 #fert1 <- fert1[fert1$socpo != "1", ]
 #fert1$farmer <- as.numeric(fert1$socpo == "2")
 #fert1$birthdate <- fert1$birthdate
-x <- head(fert1[, c("id", "lopnr", "region", "hisclass", "period", "cohort", "enter", "exit", "event")])
-print(xtable(x, digits = c(0,0, 0,0,0,0, 0,3, 3, 0), caption = "First six records from the data file (selected columns).", label = "tab:sixrow"), include.rownames = FALSE)
+x <- fert1[fert1$id == 233, c("id", "lopnr", "parish", "hisclass", "birthdate", "enter", "exit", "event", "inf.death")]
+print(xtable(x, digits = c(0,0, 0,0, 0,3, 3, 3, 0, 0), caption = "Birth history of woman No. 233 (selected columns).", label = "tab:sixrow"), include.rownames = FALSE)
 @
-Woman No.\ 55 got married at age 21.816 (years), was followed until age 38.457 (end of marriage),
-and she had five births.
- The last interval (almost) always ends with no birth ({\tt event = FALSE}): Women are followed until age 50, end of marriage, or lost to follow-up, whichever comes first. Note that childless marriages are included.
+Woman No.\ 233 got married at age 24 (years), was followed until age 46.468 when she died,
+and she had seven births.
+ The last interval (almost) always ends with no birth ({\tt event = FALSE}): Women are followed until age 50, end of marriage, or lost to follow-up, whichever comes first. The first interval starts at age at marriage, or age at first observation as married, or age 20 and married, whichever comes \emph{last}. Note that childless marriages are included.
 
-Table~\ref{tab:hiscske} shows the distribution (per cent) over socioeconomic
+Figure~\ref{fig:hiscske} shows the distribution (per cent) over socioeconomic
 status and 
 time periods of exposure time for married women in the sample. The
 socioeconomic status is measured by the occupation of the head of the
 household (a man). The big shift is that the fraction farmers is more than
 halved during this century. All the other classes are increasing in size.  
 
-<<hiscske, results = 'asis'>>=
+<<hiscske, fig.cap = "Exposure by hisclass and time period, Skellefte{\\aa} (top) and Ume{\\aa} (bottom). Hisclasses are ordered by number from top (1) to bottom (6).", fig.scap = "Exposure by hisclass and time period.", fig.height = 9>>=
 ##save(kTab, file = "kTab.rda")
+oldpar <- par(mfrow = c(2, 1))
 xx <- with(kTab[kTab$region == "ske", ], tapply(exposure, 
                         list(period = period, hisclass = hisclass), 
                         sum))
 yy <- round(prop.table(xx, 1) * 100, 1)
-xtable(yy[-1, ], digits = 1, caption = "Distribution of exposure over social class and time period, the Skellefteå region.", label = "tab:hiscske")
-@ 
+zz <- t(yy[-(1:3), ])
+barplot(zz[6:1,], col = 6:1, las = 1, main = "Skellefteå", names.arg = c("1901-10", "1911-20", "1921-30", "1931-40", "1941-50"), ylab = "Per cent")
+##xtable(yy[-1, ], digits = 1, caption = "Distribution of exposure over social class and time period, the Skellefteå ##region.", label = "tab:hiscske")
+##@ 
 
-The corresponding table for the Umeå region is given in Table~\ref{tab:hiscume}.
+##The corresponding information for the Umeå region is given in
+##Figure~\ref{fig:hiscume}. 
 
-<<hiscume, results = 'asis'>>=
+##<<hiscume, fig.cap = "Exposure by hisclass and time period, Skelleftea. Hisclasses are ordered by number from bottom to top.", fig.scap = "Exposure by hisclass and time period, Umea.">>=
 ##save(kTab, file = "kTab.rda")
 xx <- with(kTab[kTab$region == "ume", ], tapply(exposure, 
                         list(period = period, hisclass = hisclass), 
                         sum))
 yy <- round(prop.table(xx, 1) * 100, 1)
-xtable(yy[-(1:3), ], digits = 1, caption = "Distribution of exposure over social class and time period, the Umeå region.", label = "tab:hiscume")
+zz <- t(yy[-(1:3), ])
+barplot(zz[6:1, ], col = 6:1, las = 1, main = "Umeå", names.arg = c("1901-10", "1911-20", "1921-30", "1931-40", "1941-50"), ylab = "Per cent")
+par(oldpar)
+##xtable(yy[-(1:3), ], digits = 1, caption = "Distribution of exposure over social class and time period, the Umeå region.", label = "tab:hiscume")
 @ 
 
-\section{Variables}
+\subsection{Variables}
 
 The following variables are of primary interest in our analysis.
 
@@ -511,7 +574,7 @@ The following variables are of primary interest in our analysis.
 \item[enter] Mother's age at previous child, marriage, first seen, or age 20.
 \item[exit] mother's age at birth of current child or date last seen or age 50.
 \item[event] Indicator of a birth at {\tt exit}.
-\item[event1] Indicator of a birth that survives age one at {\tt exit}.
+\item[event1] Indicator of a birth at {\tt exit} that survives age one.
 \item[lopnr] Birth order among \emph{observed} births between ages 20 and 50.
 \item[antrec] Total number of records for current woman.
 \item[hisclass] Hisclass with the following categories.
@@ -530,15 +593,14 @@ The following variables are of primary interest in our analysis.
 \item[age] Mother's age at child birth grouped in five-year-intervals.
 \item[exposure] Interval length.
 \item[ind.death] Did the born child die before age one?
-\item[event1] Did the interval end with a birth surviving for one year?
-\item[N] The constants from the Coale-Trussell model.
-\item[V] The constants from the Coale-Trussell model.
+\item[N] Constants from the Coale-Trussell model.
+\item[V] Constants from the Coale-Trussell model.
 \end{description}
 
 Now, since all or interesting covariates are, or can be transformed into, categorical variables, \emph{aggregating} the variables {\tt exposure}, {\tt event},  and {\tt event1} over all possible combinations of values of the other covariates creates three multidimensional tables that can be stored in a compact way as seen in Tables~\ref{tab:compact} and~\ref{tab:compact2}.
 
 <<compact, results = 'asis'>>=
-xtable(head(kTab[, names(kTab)[2:8]]), caption = "First rows in compact multiway table. Colu1mns representing explanatory variables.", 
+xtable(head(kTab[, names(kTab)[2:8]]), caption = "First rows in compact multiway table. Columns representing explanatory variables.", 
        label = "tab:compact")
 @
 
@@ -553,6 +615,7 @@ plot(c(1851, 1951), c(50, 50), type = "l", xlim = c(1821, 1951), ylim = c(20, 50
      xlab = "Year", ylab = "Age", axes = FALSE)
 axis(1, at = c(1821, 1851, 1901, 1921, 1951))
 axis(2, las = 1)
+axis(4, las = 1)
 box()
 abline(h = 0)
 lines(c(1851, 1951), c(49.8, 49.8), col = "red")
@@ -584,28 +647,65 @@ lines(c(1931, 1931), c(20, 50), lty = 2)
 lines(c(1941, 1941), c(20, 50), lty = 2)
 @
 
-There are 225\,792 unique combinations of the levels of the expanatory variables and the age-period-cohort combinations, but many of them are either structural or random zeros, so the total number of observed combinations is only 6\,228. The original data frame contains 300\,579 records. 
+There are 225\,792 unique combinations of the levels of the explanatory
+variables and the age-period-cohort combinations, but many of them are
+either structural or random zeros, so the total number of observed
+combinations is only 6\,228. The original data frame contains 300\,579
+records.  
 
-Thus, the analyses of our problem gain hugely in speed by using the aggregated tables, and further, it makes it very easy to implement the Coale-Trussell model. The worries are: Are we losing information? Will our results be biased?
+Thus, the analyses of our problem gain hugely in speed by using the
+aggregated tables, and further, it makes it very easy to implement the
+Coale-Trussell model. The worries are: Are we losing information? Will our
+results be biased? 
 
-The answers to these questions are: Given that the model we are fitting, and given the original data, the tables we create form \emph{sufficient statistics}. This means that, given our tables, the extra information in the original data is pure noise. It will \emph{not} improve our results. 
+The answers to these questions are: Given that the model we are fitting,
+and given the original data, the tables we create form \emph{sufficient
+  statistics}. This means that, given our tables, the extra information in
+the original data is pure noise. It will \emph{not} improve our results.  
 
-That is the good news. The back side is that the "pure noise" can be used to judge model fit. If an analysis shows that it is \emph{not} pure noise, but perhaps is related to a (subset of) our data, then we are in trouble. So, the advice is: perform all the estimations and testing in the tabular world, and evaluate model fit with the original data. It saves a huge amount of time compared to doing everything with the original sample.
+That is the good news. The back side is that the "pure noise" can be used
+to judge model fit. If an analysis shows that it is \emph{not} pure noise,
+but perhaps is related to a (subset of) our data, then we are in
+trouble. So, the advice is: perform all the estimations and testing in the
+tabular world, and evaluate model fit with the original data. It saves a
+huge amount of time compared to doing everything with the original sample. 
 
-In our specific case, with the piecewise constant hazards model, we can utilize the fact that the likelihood function that is given by a survival analysis is exactly the same as if we interpret the number of births in each of our cells as following a \emph{Poisson} distribution and write down the resulting likelihood function. But note carefully that this does \emph{not} imply that the numbers of births really follow a Poisson distribution (they do not). Thus, we can utilize ordinary software for Poisson regression and get very efficient and fast parameter estimation. The (small) price we have to pay is that for instance estimates of the baseline hazard function are not coming automatically but require some thought. 
+In our specific case, with the piecewise constant hazards model, we can
+utilize the fact that the likelihood function that is given by a survival
+analysis is exactly the same as if we interpret the number of births in
+each of our cells as following a \emph{Poisson} distribution and write down
+the resulting likelihood function. But note carefully that this does
+\emph{not} imply that the numbers of births really follow a Poisson
+distribution (they do not). Thus, we can utilize ordinary software for
+Poisson regression and get very efficient and fast parameter
+estimation. The (small) price we have to pay is that for instance estimates
+of the baseline hazard function are not coming automatically but require
+some thought.  
 
-These ideas are not new, see e.g.\  \citet{gb85}. Long before software for survival analysis (read: Cox regression) was commonly available, in the late 1970s, Jan M.\ Hoem taught us how to do this with software analysing loglinear models for contigency tables, see \citet{hoem87,jmh11} and \citet{nldo81}. This is interesting: Because there were no good statistical software for survival analysis around 1980, innovative methods like the log-linear models were found to work outside their so-called natural domain. When later new software appeared for direct survival analysis these methods were forgotten (more or less). Now they are found useful again, but for a different reason: We are analysing larger and larger data sets, and raw calculation ties up too much time and other resources, so by thinking and remembering the theory about sufficient statistics, we can do things much faster and with much smaller, and anonymous, data sets (tables). 
+These ideas are not new, see e.g.\  \citet{gb85}. Long before software for
+survival analysis (read: Cox regression) was commonly available, in the
+late 1970s, Jan M.\ Hoem taught us how to do this with software analyzing
+loglinear models for contingency tables, see \citet{hoem87,jmh11} and
+\citet{nldo81}. This is interesting: Because there were no good statistical
+software for survival analysis around 1980, innovative methods like the
+log-linear models were found to work outside their so-called natural
+domain. When later new software appeared for direct survival analysis these
+methods were forgotten (more or less). Now they are found useful again, but
+for a different reason: We are analyzing larger and larger data sets, and
+raw calculation ties up too much time and other resources, so by thinking
+and remembering the theory about sufficient statistics, we can do things
+much faster and with much smaller, and anonymous, data sets (tables).  
 
-\section{Analysis}
+\section{Analysis, all births}
 
-The analysis of the above described counting process and data can be
-performed by
-\emph{Cox regression} (allowing \emph{left truncation}). The complication
-is the \emph{dynamic} nature of the
-process: The future and present depends on its history (meaning that it is
-\emph{not} a Poisson process). There are essentially two possibilities: (i)
-A \emph{shared frailty} (\emph{marginal}) model, or (ii) a \emph{dynamic}
-model, where the history is explicitly modeled. 
+%% The analysis of the above described counting process and data can be
+%% performed by
+%% \emph{Cox regression} (allowing \emph{left truncation}). The complication
+%% is the \emph{dynamic} nature of the
+%% process: The future and present depends on its history (meaning that it is
+%% \emph{not} a Poisson process). There are essentially two possibilities: (i)
+%% A \emph{shared frailty} (\emph{marginal}) model, or (ii) a \emph{dynamic}
+%% model, where the history is explicitly modeled. 
 
 % The first approach models
 % differences in fertility between women by including a random effect term for
@@ -614,28 +714,27 @@ model, where the history is explicitly modeled.
 %   births} and \emph{time since previous birth} (not always available).
 % Adding to this is the necessity to choose a time scale, see above.
 
-In this exposition I have chosen \emph{age} as time
-scale. Figure~\ref{fig:kollp} shows the results of a crude (no 'adjustment' for other covariates) exposure of the
-four social classes over five time periods, each two decades long. In the
-first period, 1851--1870, nothing much happens: Fertility is high in all
-classes and during the full fertile age period. In the next time period,
-1871--1890, we see a clear decrease in the {\tt official} and {\tt
-  business} classes. Then the {\tt farming} and {\tt business} classes go
-lower, while in the last two periods, 1911--1950, it is obvious that the
-{\tt farmers} remain on a relatively high level, especially in old ages,
-while the rest clearly adapts to a low-fertility pattern.    
-Differences in age at marriage for women play a fundamental role, of course. A
-quick analysis of age at marriage by {\tt socBranch} shows no big differences : Typical and average marriage ages lie between 26 and 26 years of age.
+%% In this exposition I have chosen \emph{age} as time
+%% scale. Figure~\ref{fig:kollp} shows the results of a crude (no 'adjustment' for other covariates) exposure of the
+%% four social classes over five time periods, each two decades long. In the
+%% first period, 1851--1870, nothing much happens: Fertility is high in all
+%% classes and during the full fertile age period. In the next time period,
+%% 1871--1890, we see a clear decrease in the {\tt official} and {\tt
+%%   business} classes. Then the {\tt farming} and {\tt business} classes go
+%% lower, while in the last two periods, 1911--1950, it is obvious that the
+%% {\tt farmers} remain on a relatively high level, especially in old ages,
+%% while the rest clearly adapts to a low-fertility pattern.    
+%% Differences in age at marriage for women play a fundamental role, of course. A
+%% quick analysis of age at marriage by {\tt socBranch} shows no big differences : Typical and average marriage ages lie between 26 and 26 years of age.
 
 
 \subsection{Stopping and spacing}
 
 We consider the development of a stopping behavior both by period and by
-cohort. It is governed by the {\tt 'm'} of \citet{ct78}. Similarly, the
-spacing behavior is measured by their {\tt 'M'}. We show the delopment by
+cohort. It is measured by the {\tt 'm'} of \citet{ct78}. Similarly, the
+spacing behavior is measured by their {\tt 'M'}. We show the development by
 period and by cohort, in both cases for each {\tt hisclass}, adjusted for
 {\tt marriage age} and {\tt parish}.  
-
 The results are only shown graphically, and the reason is that there are many three-way interactions involved, see Table~\ref{tab:sigthree}.
 
 <<threeway>>=
@@ -649,10 +748,27 @@ xtable(df, caption="Likelihood Ratio tests of threeway interaction effects.", la
 @
 
 The variable $V$ has the regression coefficient $m$, Coale-Trussell's "little m".
-This model contains no less than 240 estimated coefficients: You do not want to see them in print, and I certainly do not want to show them. Instead, first I show the statistical significance of the threeway interactions in 
-Table~\ref{tab:sigthree}. Then, in what follows, the results are graphically reported.
+This model contains no less than 240 estimated coefficients: You do not want to see them in print, and I certainly do not want to show them. Instead, first I show the statistical significance of the three-way interactions in 
+Table~\ref{tab:sigthree}. Then, in what follows, the results are graphically reported. The development over time may be driven by time periods or cohorts (or both). 
+
 
 \subsubsection{By period}
+
+From Figure~\ref{fig:aggre} is seen that there are two time periods in the nineteenth century, {\tt 1851--1880} and {\tt 1881-1900}, and five ten-year-long periods in the twentieth century. For each period, and for each {\tt hisclass}, a Poisson regression model is fitted as follows (exemplified with the period {\tt 1931-1940} and {\tt hisclass = 3}):
+<<exfit,echo=TRUE>>=
+fit <- glm(event ~ offset(log(N * exposure)) + V + urban + marAge,
+           data = kTab, family = poisson,
+           subset = (hisclass == "farmer" & period == "1931-1940"))
+@
+The result is shown in Table~\ref{tab:tableexfit}.
+
+<<tableexfit, results = 'asis'>>=
+xtable(round(summary(fit)$coef[, 1:2], 4), digits = 4, caption = "Parameter estimates, Poisson regression.", label = "tab:tableexfit")
+@
+
+From this we get that $\hat{M} = \exp(-0.3716) = 0.690$ and $\hat{m} = 0.499$, that is, strong signs of both spacing (small {\tt M}) and stopping (large {\tt m}). Note that the $M = \exp(Intercept)$ is evaluated for the reference category, \emph{rural} residence and \emph{marriage age} {\tt (15, 25]}.
+
+This is then repeated for all hisclasses and all periods, and the results are shown in Figure~\ref{fig:plotmhc}, where it is clear that the {\tt elite} is introducing a \emph{stopping} behavior already in the late nineteenth century (lower panel), while the {\tt middle class} is leading in lowering the overall level, or \emph{spacing}. Farmers are slow in both respects.
 
 % First we illustrate the development by {\tt social branch}, see
 % Figure~\ref{fig:plotm}. 
@@ -677,7 +793,7 @@ Table~\ref{tab:sigthree}. Then, in what follows, the results are graphically rep
 % legend("topleft", legend = levels(kTab$socBranch), col = 1:4, pch = 1:4, lty = 1:4)
 % @
 
-Then by {\tt hisclass}, see Figure~\ref{fig:plotmhc}.
+%Then by {\tt hisclass}, see Figure~\ref{fig:plotmhc}.
 
 <<plotmhc, fig.cap = "Coale-Trussell's M and m by hisclass and period.",fig.height = 9>>=
 source("R/getMmhc.R")
@@ -693,25 +809,25 @@ x <- c(1865, 1890, 1905, 1915, 1925, 1935, 1945)
 oldpar <- par(mfrow = c(2, 1), las = 1)
 ## 'M':
 plot(x, y1[1, -1], col = 1, type = "b", ylab = "M", ylim = c(0, 1.1),
-     axes = FALSE, xlab = "Period", xlim = c(1851, 1951), lwd = 2, main = 'M')
+     axes = FALSE, xlab = "Period", xlim = c(1851, 1951), lwd = 3, main = 'M')
 axis(1, at = c(1851, x, 1950), las = 2)
 axis(2)
 axis(4)
 box()
 for (j in 2:6){
-    lines(x, y1[j, -1], col = j, type = "b", pch = j, lty = j, lwd = 2)
+    lines(x, y1[j, -1], col = j, type = "b", pch = j, lty = j, lwd = 3)
 }
 legend("bottomleft", legend = levels(kTab$hisclass), col = 1:6, pch = 1:6, lty = 1:6)
 ## 'm':
 plot(x, y2[1, -1], col = 1, type = "b", ylab = "m", ylim = c(-0.2, 1.3),
-     axes = FALSE, xlab = "Period", xlim = c(1851, 1951), lwd = 2, main = "m")
+     axes = FALSE, xlab = "Period", xlim = c(1851, 1951), lwd = 3, main = "m")
 axis(1, at = c(1851, x, 1950), las = 2)
 axis(2, las = 2, at = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0))
 axis(4, las = 2, at = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0))
 box()
 abline(h = 0)
 for (j in 2:6){
-    lines(x, y2[j, -1], col = j, type = "b", pch = j, lty = j, lwd = 2)
+    lines(x, y2[j, -1], col = j, type = "b", pch = j, lty = j, lwd = 3)
 }
 legend("topleft", legend = levels(kTab$hisclass), col = 1:6, pch = 1:6, lty = 1:6)
 par(oldpar)
@@ -744,7 +860,7 @@ par(oldpar)
 % legend("topleft", legend = levels(kohort$socBranch), col = 1:4, pch = 1:4, lty = 1:4)
 % @
 
-Then the development by cohort and hisclass, see Figure~\ref{fig:plotmkohhc}.
+Then we show the development by cohort and hisclass, see Figure~\ref{fig:plotmcohhc}. Now the spacing behavior disappears completely, while the stopping behavior is a little more accentuated compared to the period analysis.
 
 <<plotmcohhc, fig.cap = "Coale-Trussell's M and m by hisclass and cohort.", fig.height = 9>>=
 kohort <- kTab[!(kTab$cohort %in% c("1921-1940", "1941-1960")), ]
@@ -761,26 +877,30 @@ x <- c(1830, 1850, 1870, 1890, 1910)
 oldpar = par(mfrow = c(2, 1))
 ## M:
 plot(x, y1[1, ], col = 1, type = "b", ylab = "M", ylim = c(0, 1.3),
-     axes = FALSE, xlab = "Cohort", xlim = c(1821, 1921), lwd = 2, main = 'M')
+     axes = FALSE, xlab = "Cohort", xlim = c(1821, 1921), lwd = 3, main = 'M')
 axis(1, at = c(1821, x, 1920), las = 2)
-axis(2)
+axis(2, las = 1)
+axis(4, las = 1)
 box()
 for (j in 2:6){
-    lines(x, y1[j, ], col = j, type = "b", pch = j, lty = j, lwd = 2)
+    lines(x, y1[j, ], col = j, type = "b", pch = j, lty = j, lwd = 3)
 }
 legend("bottomleft", legend = levels(kohort$hisclass), 
 col = 1:6, pch = 1:6, lty = 1:6)
 ## m:
 plot(x, y2[1, ], col = 1, type = "b", ylab = "m", ylim = c(-0.2, 1.3),
-     axes = FALSE, xlab = "Cohort", xlim = c(1821, 1921), lwd = 2, main = 'm')
+     axes = FALSE, xlab = "Cohort", xlim = c(1821, 1921), lwd = 3, main = 'm')
 axis(1, at = c(1821, x, 1920), las = 2)
-axis(2)
+axis(2, las = 1)
+axis(4, las = 1)
 box()
 for (j in 2:6){
-    lines(x, y2[j, ], col = j, type = "b", pch = j, lty = j, lwd = 2)
+    lines(x, y2[j, ], col = j, type = "b", pch = j, lty = j, lwd = 3)
 }
 legend("topleft", legend = levels(kohort$hisclass), col = 1:6, pch = 1:6, lty = 1:6)
 @
+
+An explanation to this may be that the CT model fits best to cohort data, and when looking at period data, a mixture of cohorts in different stages of stopping is resulting. 
 
 % <<kollp, fig.cap = "Cumulative intensities of births by social branch.", message = FALSE, echo = FALSE, fig.height = 5.5>>=
 % source("R/addPer.R")
@@ -806,39 +926,15 @@ legend("topleft", legend = levels(kohort$hisclass), col = 1:6, pch = 1:6, lty = 
 
 \subsection{TMFR}
 
-\subsubsection{By period}
+We repeat the analyses with \emph{TMFR} replacing $(M, m)$. 
 
-% We illustrate the development by {\tt social branch}, see
-% Figure~\ref{fig:plotTMFR}. 
-% 
-% <<plotTMFR, fig.cap = "TMFR by branch and period.">>=
-% source("R/tmfrCT.R")
-% y <- matrix(0, ncol = 8, nrow = 4)
-% ##kTab <- kTab[kTab$region == "ske", ]
-% pp <- levels(kTab$period)
-% for (i in 2:8){
-%     res <- getMm(kTab[kTab$period == pp[i], ])
-%     for (j in 1:4){
-%        y[j, i] <- tmfrCT(res[j, 1], res[j, 2])
-%     }
-% }
-% x <- c(1865, 1890, 1905, 1915, 1925, 1935, 1945)
-% plot(x, y[1, -1], col = 1, type = "b", ylab = "TMFR", ylim = c(0, 10),
-%      axes = FALSE, xlab = "Period", xlim = c(1851, 1951), lwd = 2)
-% axis(1, at = c(1851, x, 1950), las = 2)
-% axis(2, las = 2)
-% box()
-% for (j in 2:4){
-%     lines(x, y[j, -1], col = j, type = "b", pch = j, lty = j, lwd = 2)
-% }
-% legend("bottomleft", legend = levels(kTab$socBranch), col = 1:4, pch = 1:4, lty = 1:4)
-% abline(h = 0)
-% axis(4, las = 2)
-% @
+%\subsubsection{By period}
 
-Then by {\tt hisclass}, see Figure~\ref{fig:plotmhcTMFR}.
+%See Figures~\ref{fig:plotmhcTMFR} and~\ref{fig:plotcohortTMFR}. 
 
-<<plotmhcTMFR, fig.cap = "TFMR by hisclass and period.">>=
+Figure~\ref{fig:plotmhcTMFR} shows the TMFR by hisclass and period. The elite and the middle class are slightly ahead in the fertility decline, while farmers and unskilled workers lags behind. There are no bid differences at all in the last period, 1941--1950.
+
+<<plotmhcTMFR, fig.cap = "TMFR by hisclass and period.">>=
 ##source("R/getMmhc.R")
 source("R/tmfrCT.R")
 y <- matrix(0, ncol = 8, nrow = 6)
@@ -852,47 +948,48 @@ for (i in 2:8){
     }
 x <- c(1865, 1890, 1905, 1915, 1925, 1935, 1945)
 plot(x, y[1, -1], col = 1, type = "b", ylab = "TMFR", ylim = c(0, 10),
-     axes = FALSE, xlab = "Period", xlim = c(1851, 1951), lwd = 2)
+     axes = FALSE, xlab = "Period", xlim = c(1851, 1951), lwd = 3)
 axis(1, at = c(1851, x, 1950), las = 2)
-axis(2)
-axis(4)
+axis(2, las = 1)
+axis(4, las = 1)
 box()
 for (j in 2:6){
-    lines(x, y[j, -1], col = j, type = "b", pch = j, lty = j, lwd = 2)
+    lines(x, y[j, -1], col = j, type = "b", pch = j, lty = j, lwd = 3)
 }
 legend("bottomleft", legend = levels(kTab$hisclass), col = 1:6, pch = 1:6, lty = 1:6, cex = 0.75)
 abline(h = 0)
 @
 
-% <<plotmhcTMFR30, fig.cap = "TFMR at 30 by hisclass and period.">>=
-% ##source("R/getMmhc.R")
-% y <- matrix(0, ncol = 8, nrow = 6)
-% ##kTab <- kTab[kTab$region == "ske", ]
-% pp <- levels(kTab$period)
-% for (i in 2:8){
-%     res <- getMmhc(kTab[kTab$period == pp[i], ])
-%     for (j in 1:6){
-%         y[j, i] <- tmfrCT(res[j, 1], res[j, 2], 30)
-%     }
-%     }
-% x <- c(1865, 1890, 1905, 1915, 1925, 1935, 1945)
-% plot(x, y[1, -1], col = 1, type = "b", ylab = "TMFR", ylim = c(0, 6),
-%      axes = FALSE, xlab = "Period", xlim = c(1851, 1951), lwd = 2)
-% axis(1, at = c(1851, x, 1950), las = 2)
-% axis(2)
-% axis(4)
-% box()
-% for (j in 2:6){
-%     lines(x, y[j, -1], col = j, type = "b", pch = j, lty = j, lwd = 2)
-% }
-% legend("bottomleft", legend = levels(kTab$hisclass), col = 1:6, pch = 1:6, lty = 1:6, cex = 0.75)
-% abline(h = 0)
-%@
+The cohort analysis, on the other hand, gives a weak differential between hisclasses, even if the elite and the middle class are slightly ahead, see Figure~\ref{fig:plotcohortTMFR}.
 
-%%\subsubsection{By cohort}
+<<plotcohortTMFR, fig.cap = "TMFR by hisclass and cohort.">>=
+##source("R/getMmhc.R")
+source("R/tmfrCT.R")
+y <- matrix(0, ncol = 5, nrow = 6)
+##kTab <- kTab[kTab$region == "ske", ]
+pp <- levels(kohort$cohort)
+for (i in 1:5){
+    res <- getMmhc(kohort[kohort$cohort == pp[i], ])
+    for (j in 1:6){
+        y[j, i] <- tmfrCT(res[j, 1], res[j, 2])
+    }
+    }
+x <- c(1830, 1850, 1870, 1890, 1910)
+plot(x, y[1, ], col = 1, type = "b", ylab = "TMFR", ylim = c(0, 10),
+     axes = FALSE, xlab = "Period", xlim = c(1821, 1921), lwd = 3)
+axis(1, at = c(1820, x, 1920), las = 2)
+axis(2, las = 1)
+axis(4, las = 1)
+box()
+for (j in 2:6){
+    lines(x, y[j, ], col = j, type = "b", pch = j, lty = j, lwd = 3)
+}
+legend("bottomleft", legend = levels(kTab$hisclass), col = 1:6, pch = 1:6, lty = 1:6, cex = 0.75)
+abline(h = 0)
+@
 
-
-<<cohorttmfr, fig.cap = "TMFR by hisclass and cohort.">>=
+A drawback with the TMFR is that it gives an overly optimistic view of the marital fertility and number of births per woman \citep{jmh11}. With the cohort data a radical solution is available: Count the number of births in a cohort and relate that number to the total number of women contributing to the cohort. The result is seen in Figure~\ref{fig:cohorttmfr}.
+<<cohorttmfr, fig.cap = "Number of births per woman by hisclass and cohort.">>=
 source("R/kohort.R")
 y <- matrix(0, nrow = 6, ncol = 5)
 koh <- levels(kids$cohort)
@@ -900,122 +997,80 @@ for (i in 1:5){
     y[, i] <- kohort(koh[i])
 }
 x <- c(1830, 1850, 1870, 1890, 1910)
-plot(x, y[1, ], type = "b", ylim = c(0, 7))
+plot(x, y[1, ], type = "b", ylim = c(0, 5), xlab = "Cohort", ylab = "Births per woman", las = 1, lwd = 3)
+axis(4, las = 1)
 for(i in 2:6){
-    lines(x, y[i, ], col = i, lty = i, pch = i, type = "b")
+    lines(x, y[i, ], col = i, lty = i, pch = i, type = "b", lwd = 3)
 }
+abline(h = 0)
 @
 
-\section{Successful births}
+As expected, the overall levels are much lower than the TMFR, but what stands out is the farmers' relatively high level. An partial explanation to this may be that the average fertile period length per married woman is 18.2 years for farmers, but only 14.7 years for non-farmers. And that may be explained by the fact that farmers on average are more stationary than others.
 
-We define (for now) a \emph{successful birth} as a birth of a child that
+\section{Analysis, surviving births}
+
+We define (for now) a \emph{surviving birth} as a birth of a child that
 survives at least one year after birth. Technically, in the counting
 process framework, the time point of such birth is \emph{not a stopping
   time} (we need to wait one year after a birth to know if it can be
 classified as a success), but it is a minor problem in this context. If we
 instead define an event time as the time when an infant turns into a child
-(at the first birthday), we have a  stopping time, an subtracting one does
+(at the first birthday), we have a  stopping time, and subtracting one does
 not change that fact; we can regard it as a change of time scale. Of
 course, it may happen that it is impossible to decide if a birth results in
 a child one year later, but it is quite rare in our data, and we chose to
-ignore it: such a birth is regarded as a success.
+ignore it: such a birth is regarded as a survivor.
 
 The Ccoale-Trussell model will once again be used in the analysis, which is
-a repitition of the one in the previous section, but with the new version
+a repetition of the one in the previous section, but with the new version
 of a birth. If the infant death is independent of parity, we would expect
 that $m$ would be the same but $M$ would be reduced. 
 
-With the new data set, where {\tt event} is replaced by {\tt event1}, we
+With the new data set, where {\tt event} is replaced by {\tt event1} (indicating 
+a birth that survives for one year), we
 get the results presented in the rest of this section.
 
 <<successdata>>=
-kTab_orig <- kTab
-kTab$event <- kTab$event1
+kTab.s <- kTab
+kTab.s$event <- kTab.s$event1
 @ 
 
-\subsection{Stopping}
+\subsection*{Stopping}
 
-We consider the development of a stopping behavior both by period and by
-cohort.  
+First, we consider the development of a stopping behavior both by period and by
+cohort, see Figure~\ref{fig:plotmhc1}.  
 
-\subsubsection{By period}
 
-% First we illustrate the development by {\tt social branch}, see
-% Figure~\ref{fig:plotm}. 
-% 
-% <<plotm, fig.cap = "Coale-Trussell's m by branch and period.">>=
-% source("R/getMm.R")
-% y <- matrix(0, ncol = 8, nrow = 4)
-% ##kTab <- kTab[kTab$region == "ske", ]
-% pp <- levels(kTab$period)
-% for (i in 2:8){
-%     y[, i] <- getMm(kTab[kTab$period == pp[i], ])[, 2]
-% }
-% x <- c(1865, 1890, 1905, 1915, 1925, 1935, 1945)
-% plot(x, y[1, -1], col = 1, type = "b", ylab = "m", ylim = c(0, 1.3),
-%      axes = FALSE, xlab = "Period", xlim = c(1851, 1951), lwd = 2)
-% axis(1, at = c(1851, x, 1950), las = 2)
-% axis(2)
-% box()
-% for (j in 2:4){
-%     lines(x, y[j, -1], col = j, type = "b", pch = j, lty = j, lwd = 2)
-% }
-% legend("topleft", legend = levels(kTab$socBranch), col = 1:4, pch = 1:4, lty = 1:4)
-% @
 
-Then by {\tt hisclass}, see Figure~\ref{fig:plotmhc1}.
-
-<<plotmhc1, fig.cap = "Coale-Trussell's m by hisclass and period, successful births.">>=
+<<plotmhc1, fig.cap = "Coale-Trussell's m by hisclass and period, surviving births.">>=
 source("R/getMmhc.R")
 y <- matrix(0, ncol = 8, nrow = 6)
 ##kTab <- kTab[kTab$region == "ske", ]
-pp <- levels(kTab$period)
+pp <- levels(kTab.s$period)
 for (i in 2:8){
-    y[, i] <- getMmhc(kTab[kTab$period == pp[i], ])[, 2]
+    y[, i] <- getMmhc(kTab.s[kTab.s$period == pp[i], ])[, 2]
 }
 x <- c(1865, 1890, 1905, 1915, 1925, 1935, 1945)
-plot(x, y[1, -1], col = 1, type = "b", ylab = "m", ylim = c(0, 1.3),
-     axes = FALSE, xlab = "Period", xlim = c(1851, 1951), lwd = 2)
+plot(x, y[1, -1], col = 1, type = "b", ylab = "m", ylim = c(-0.2, 1.3), 
+     axes = FALSE, xlab = "Period", xlim = c(1851, 1951), lwd = 3)
 axis(1, at = c(1851, x, 1950), las = 2)
-axis(2)
+axis(2, las = 1)
+axis(4, las = 1)
 box()
 for (j in 2:6){
-    lines(x, y[j, -1], col = j, type = "b", pch = j, lty = j, lwd = 2)
+    lines(x, y[j, -1], col = j, type = "b", pch = j, lty = j, lwd = 3)
 }
 legend("topleft", legend = levels(kTab$hisclass), col = 1:6, pch = 1:6, lty = 1:6)
 @
 
 
-\subsubsection{By cohort}
+%\subsubsection{By cohort}
 
-% First we illustrate the development by {\tt social branch}, see
-% Figure~\ref{fig:plotmcoh}. 
-% 
-% <<plotmcoh, fig.cap = "Coale-Trussell's m by branch and cohort.">>=
-% kohort <- kTab[!(kTab$cohort %in% c("1921-1940", "1941-1960")), ]
-% kohort$cohort <- factor(kohort$cohort)
-% y <- matrix(0, ncol = 5, nrow = 4)
-% ##kTab <- kTab[kTab$region == "ske", ]
-% pp <- levels(kohort$cohort)
-% for (i in 1:5){
-%     y[, i] <- getMm(kohort[kohort$cohort == pp[i], ])[, 2]
-% }
-% x <- c(1830, 1850, 1870, 1890, 1910)
-% plot(x, y[1, ], col = 1, type = "b", ylab = "m", ylim = c(0, 1.3),
-%      axes = FALSE, xlab = "Cohort", xlim = c(1821, 1921), lwd = 2)
-% axis(1, at = c(1821, x, 1920), las = 2)
-% axis(2)
-% box()
-% for (j in 2:4){
-%     lines(x, y[j, ], col = j, type = "b", pch = j, lty = j, lwd = 2)
-% }
-% legend("topleft", legend = levels(kohort$socBranch), col = 1:4, pch = 1:4, lty = 1:4)
-% @
+Then we repeat the cohort approach with surviving births, see Figure~\ref{fig:plotmcohhc1}.
 
-Then the development by cohort and hisclass, see Figure~\ref{fig:plotmkohhc1}.
 
-<<plotmcohhc1, fig.cap = "Coale-Trussell's m by hisclass and cohort, successful births.">>=
-kohort <- kTab[!(kTab$cohort %in% c("1921-1940", "1941-1960")), ]
+<<plotmcohhc1, fig.cap = "Coale-Trussell's m by hisclass and cohort, surviving births.">>=
+kohort <- kTab.s[!(kTab.s$cohort %in% c("1921-1940", "1941-1960")), ]
 kohort$cohort <- factor(kohort$cohort)
 y <- matrix(0, ncol = 5, nrow = 6)
 ##kTab <- kTab[kTab$region == "ske", ]
@@ -1024,164 +1079,73 @@ for (i in 1:5){
     y[, i] <- getMmhc(kohort[kohort$cohort == pp[i], ])[, 2]
 }
 x <- c(1830, 1850, 1870, 1890, 1910)
-plot(x, y[1, ], col = 1, type = "b", ylab = "m", ylim = c(0, 1.3),
-     axes = FALSE, xlab = "Cohort", xlim = c(1821, 1921), lwd = 2)
+plot(x, y[1, ], col = 1, type = "b", ylab = "m", ylim = c(-0.2, 1.3),
+     axes = FALSE, xlab = "Cohort", xlim = c(1821, 1921), lwd = 3)
 axis(1, at = c(1821, x, 1920), las = 2)
 axis(2)
 box()
 for (j in 2:6){
-    lines(x, y[j, ], col = j, type = "b", pch = j, lty = j, lwd = 2)
+    lines(x, y[j, ], col = j, type = "b", pch = j, lty = j, lwd = 3)
 }
 legend("topleft", legend = levels(kohort$hisclass), col = 1:6, pch = 1:6, lty = 1:6)
 @
 
-% <<kollp, fig.cap = "Cumulative intensities of births by social branch.", message = FALSE, echo = FALSE, fig.height = 5.5>>=
-% source("R/addPer.R")
-% library(skum)
-% cols <- c("darkgreen", "blue", "black", "red")
-% ltys <- c(2, 1, 6, 5)
-% ##kids <- addPer(kids, seq(1851, 1951, by = 20))
-% oldpar <- par(mfrow = c(2, 3))
-% i = 0
-% for (pr in levels(kids$period)){
-%     i = i + 1
-%     fit <- coxph(Surv(enter, exit, event) ~ strata(socBranch), 
-%                  data = kids[kids$period == pr, ])
-%     plot(survfit(fit), fun = "cumhaz", xlab = "Age", xlim = c(20, 50), ylim = c(0, 10),
-%          main = pr, col = cols, lty = ltys, lwd = 1.5)
-%    
-% }
-% plot(1, 1, xlim = c(20, 50), ylim = c(0, 10), type = "n", axes = FALSE, xlab = "", ylab = "",
-%      main = "")
-%  legend("center", legend = levels(kids$socBranch), col = cols, lty = ltys, cex = 1.5, lwd = 1.5)
-% par(oldpar)
-% @
+Compared to the corresponding figures with all births, nothing much changes, which would imply that a stopping behavior later in time is not a consequence of decreasing infant mortality.
 
-\subsection{TMFR}
+%\subsection*{TMFR}
 
-\subsubsection{By period}
+%\subsubsection{By period}
 
-% We illustrate the development by {\tt social branch}, see
-% Figure~\ref{fig:plotTMFR}. 
-% 
-% <<plotTMFR, fig.cap = "TMFR by branch and period.">>=
-% source("R/tmfrCT.R")
-% y <- matrix(0, ncol = 8, nrow = 4)
-% ##kTab <- kTab[kTab$region == "ske", ]
-% pp <- levels(kTab$period)
-% for (i in 2:8){
-%     res <- getMm(kTab[kTab$period == pp[i], ])
-%     for (j in 1:4){
-%        y[j, i] <- tmfrCT(res[j, 1], res[j, 2])
-%     }
-% }
-% x <- c(1865, 1890, 1905, 1915, 1925, 1935, 1945)
-% plot(x, y[1, -1], col = 1, type = "b", ylab = "TMFR", ylim = c(0, 10),
-%      axes = FALSE, xlab = "Period", xlim = c(1851, 1951), lwd = 2)
-% axis(1, at = c(1851, x, 1950), las = 2)
-% axis(2, las = 2)
-% box()
-% for (j in 2:4){
-%     lines(x, y[j, -1], col = j, type = "b", pch = j, lty = j, lwd = 2)
-% }
-% legend("bottomleft", legend = levels(kTab$socBranch), col = 1:4, pch = 1:4, lty = 1:4)
-% abline(h = 0)
-% axis(4, las = 2)
-% @
+The TMFR for survivors are shown in Figure~\ref{fig:plotmhcTMFR1}. Here we can see slightly lower levels than in the case with all births, which is quite natural since the TMFR directly measures level in contrast to Coale-Trussell's {\tt m}.
 
-Then by {\tt hisclass}, see Figure~\ref{fig:plotmhcTMFR1}.
-
-<<plotmhcTMFR1, fig.cap = "TFMR by hisclass and period, successful births.">>=
+<<plotmhcTMFR1, fig.cap = "TMFR by hisclass and period, surviving births.">>=
 ##source("R/getMmhc.R")
 y <- matrix(0, ncol = 8, nrow = 6)
 ##kTab <- kTab[kTab$region == "ske", ]
-pp <- levels(kTab$period)
+pp <- levels(kTab.s$period)
 for (i in 2:8){
-    res <- getMmhc(kTab[kTab$period == pp[i], ])
+    res <- getMmhc(kTab.s[kTab.s$period == pp[i], ])
     for (j in 1:6){
         y[j, i] <- tmfrCT(res[j, 1], res[j, 2])
     }
     }
 x <- c(1865, 1890, 1905, 1915, 1925, 1935, 1945)
 plot(x, y[1, -1], col = 1, type = "b", ylab = "TMFR", ylim = c(0, 10),
-     axes = FALSE, xlab = "Period", xlim = c(1851, 1951), lwd = 2)
+     axes = FALSE, xlab = "Period", xlim = c(1851, 1951), lwd = 3)
 axis(1, at = c(1851, x, 1950), las = 2)
 axis(2)
 axis(4)
 box()
 for (j in 2:6){
-    lines(x, y[j, -1], col = j, type = "b", pch = j, lty = j, lwd = 2)
+    lines(x, y[j, -1], col = j, type = "b", pch = j, lty = j, lwd = 3)
 }
 legend("bottomleft", legend = levels(kTab$hisclass), col = 1:6, pch = 1:6, lty = 1:6, cex = 0.75)
 abline(h = 0)
 @
 
-<<plotmhcTMFR301, fig.cap = "TFMR at 30 by hisclass and period, successful births.">>=
-##source("R/getMmhc.R")
-y <- matrix(0, ncol = 8, nrow = 6)
-##kTab <- kTab[kTab$region == "ske", ]
-pp <- levels(kTab$period)
-for (i in 2:8){
-    res <- getMmhc(kTab[kTab$period == pp[i], ])
-    for (j in 1:6){
-        y[j, i] <- tmfrCT(res[j, 1], res[j, 2], 30)
-    }
-    }
-x <- c(1865, 1890, 1905, 1915, 1925, 1935, 1945)
-plot(x, y[1, -1], col = 1, type = "b", ylab = "TMFR", ylim = c(0, 6),
-     axes = FALSE, xlab = "Period", xlim = c(1851, 1951), lwd = 2)
-axis(1, at = c(1851, x, 1950), las = 2)
-axis(2)
-axis(4)
-box()
-for (j in 2:6){
-    lines(x, y[j, -1], col = j, type = "b", pch = j, lty = j, lwd = 2)
-}
-legend("bottomleft", legend = levels(kTab$hisclass), col = 1:6, pch = 1:6, lty = 1:6, cex = 0.75)
-abline(h = 0)
-@
 
-\subsubsection{By cohort}
+%\subsubsection{By cohort}
 
+Finally, we show the expected number of surviving infants per woman in Figure~\ref{fig:cohorttmfr1}. Nothing spectacular, just slightly lower levels compared to the case with all infant births per woman.
 
-<<cohorttmfr1, fig.cap = "TMFR by hisclass and cohort, successful births.">>=
+<<cohorttmfr1, fig.cap = "Number of surviving births per woman by hisclass and cohort.">>=
 source("R/kohort.R")
+kids.s <- kids
+kids.s$event <- kids.s$event1
 y <- matrix(0, nrow = 6, ncol = 5)
-koh <- levels(kids$cohort)
+koh <- levels(kids.s$cohort)
 for (i in 1:5){
-    y[, i] <- kohort(koh[i])
+    y[, i] <- kohort(koh[i], dat = kids.s)
 }
 x <- c(1830, 1850, 1870, 1890, 1910)
-plot(x, y[1, ], type = "b", ylim = c(0, 7))
+plot(x, y[1, ], type = "b", ylim = c(0, 5), xlab = "Cohort", ylab = "TMFR", las = 1, lwd = 3)
+axis(4, las = 1)
 for(i in 2:6){
-    lines(x, y[i, ], col = i, lty = i, pch = i, type = "b")
+    lines(x, y[i, ], col = i, lty = i, pch = i, type = "b", lwd = 3)
 }
+abline(h = 0)
 @
 
-
-
-%' <<kollphis, fig.cap = "Cumulative intensities of births by hisclass.", message = FALSE, echo = FALSE, fig.height = 5>>=
-%' ##source("R/addPer.R")
-%' ##library(skum)
-%' cols <- c("blue", "darkgreen", "black", "red", "brown", "magenta")
-%' ltys <- c(1, 2, 6, 5,7, 8)
-%' ##kids <- addPer(kids, seq(1851, 1951, by = 20))
-%' oldpar <- par(mfrow = c(2, 3))
-%' kids$hisclass <- cut(kids$hisclass, c(0, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5), labels = 1:6)
-%' i = 0
-%' for (per in levels(kids$period)){
-%'     i = i + 1
-%'     fit <- coxph(Surv(enter, exit, event) ~ strata(hisclass), 
-%'                  data = kids[kids$period == per, ])
-%'     plot(survfit(fit), fun = "cumhaz", xlab = "Age", xlim = c(15, 50), ylim = c(0, 13),
-%'          main = per, col = cols, lty = ltys, lwd = 1.5)
-%'    
-%' }
-%' plot(1, 1, xlim = c(15, 50), ylim = c(0, 13), type = "n", axes = FALSE, xlab = "", ylab = "",
-%'      main = "")
-%'  legend("center", legend = levels(kids$hisclass), col = cols, lty = ltys, cex = 1.4, lwd = 1.5)
-%' par(oldpar)
-%' @
 
 
 %\subsection*{Age at marriage}
@@ -1192,26 +1156,24 @@ for(i in 2:6){
 %xtable(as.matrix(Age, nrow = 1))
 %@
 
-\section*{Conclusion}
+\section{Conclusion}
 
 The fertility decline starts in the upper classes ({\tt official} and {\tt
   business}) in the decades prior to the turn of the century. The {\tt
   farming} part of the population is characterized by a relatively high
 fertility in high ages until the end of the study period. It is also by far
-the largest group in the society, near 70 per cent are in the farming
-sphere on average over the study period. Towards the end of the period this
+the largest group in the society, near 45 per cent are in the farming
+category on average over the study period. Towards the end of the period this
 share is decreasing markedly. 
 
-The effect of the declining infant and child mortality on fertility will be
-addressed in the full version of this report. There will also be a deeper
-discussion of more elaborate statistical models for describing and
-interpreting our findings and findings in general. Alternative
-classification schemes of socioeconomic status will also be considered,
-i.e., {\sc Hisclass}. 
+The question of whether it is spacing or stopping that dominates the behavioral explanation of the fertility decline over time is not definitively settled, but the stopping measure, Coale-Trussell's "little {\tt m}" shows a more dramatic change over time than the corresponding spacing measure "big {\tt M}". This is especially true in the cohort setting.
 
-The work is done in the
-{\bf R} environment for statistical analysis \citep{cran},  with the package {\bf eha}
-\citep{eha,ehar12}.
+The effect of the declining infant and child mortality on the stopping or spacing behavior in fertility is minor.
+
+A topic for future research is the interplay between mother's age and duration in marriage. It is intuitively very reasonable to use "time in marriage" as the basic time scale instead of "age", but how that would effect the spacing and stopping models is still in the open. One option is to utilize a two-dimensional basic time scale. 
+
+This work was done in the
+{\bf R} environment for statistical analysis \citep{cran},  mainly with the package {\bf eha} \citep{eha,ehar12}.
 
 % A specific problem with fertility data and choice of time scale is the fact
 % that the intensity of a birth following a birth is practically zero for
@@ -1220,6 +1182,6 @@ The work is done in the
 % to the proportional hazards model. This will also be dealt with in the
 % final paper.
 
-\bibliography{surv.bib}
+\bibliography{surv,fert}
 
 \end{document}

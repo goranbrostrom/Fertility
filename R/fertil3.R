@@ -59,7 +59,7 @@ fertil3 <- function(){
     
     ##return(moth)
     
-    ##return(infants)
+    ##return(infants) # Looks OK  here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
     ## Now, we turn the 'infants' file into a 'mothers' file by 
     ## id --> ch.id, m.id --> id and sort by mother:
@@ -84,6 +84,8 @@ fertil3 <- function(){
     infants <- infants[order(infants$id, infants$ch.birthdate), ]
     
     infants <- rc(infants)
+    
+    ##return(infants) # inf55.2
     
     ## Now, adjust 'from' and 'to'
     max.exit <- with(infants, tapply(exit, id, max))
@@ -127,7 +129,7 @@ fertil3 <- function(){
     ## Clean:
     infants$foddat <- infants$max.exit <- infants$min.exit <- NULL   
 
-    ##return(infants)
+    ##return(infants) # inf55.1: Wrong here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     ## Now the childless married must be put on board!
     
     chless <- per$id[!is.na(per$foddat) &
@@ -334,7 +336,7 @@ fertil3 <- function(){
                        antrec = rep(1, nm),
                        enter = nomothers$marStart)
     ##return(kids) ## OK!!
-    return(nomo)
+    ##return(nomo)
     kids <- rbind(kids, nomo)
     kids <- kids[order(kids$id, kids$lopnr), ]
     ## And put on 'bestSocst':
