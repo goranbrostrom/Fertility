@@ -28,6 +28,58 @@ NA,fig.height = 4)##$
 @
 
 
+<<getdata>>=
+load("data/kids.rda")
+
+kids.orig <- kids ## Nice to have later!
+
+library(skum)
+##library(eha)
+## Factor hisclass into six groups:
+kids$hisclass <- cut(kids$hisclass, c(0, 1.5, 2.5, 3.5, 4.5, 5.5, 7.5), 
+                     labels = c("elite", "middle", "farmer", "skilled", 
+                                "lower_skilled", "unskilled"))
+##kids <- age.window(kids, c(20, 50))
+##kids <- kids[kids$birthdate > 1801, ]
+N <- c(.460, .431, .395, .322, .167, .024)
+V <- c(0.0, -0.279, -0.667, -1.042, -1.414, -1.671)
+## Constants in the Coale-Trussell model [20(5)50]
+## Put on 'cohort':
+kids$cohort <- cut(kids$birthdate, seq(1801, 1941, by = 20), labels = c("1821-1840", "1841-1860", "1861-1880", "1881-1900", "1901-1920", "1921-1940", "1941-1960"))
+source("R/addPer.R")
+kids <- addPer(kids, cuts = c(1821, 1851, 1881, seq(1901, 1951, by = 10)))
+kids$marAge <- cut(kids$from, c(15, 25, 30, 35, 50))
+source("R/ageGroup.R")
+kids <- ageGroup(kids, seq(20, 50, by = 5))
+kids$exposure <- kids$exit - kids$enter
+##kids$inf.death <- with(kids, !is.na(deathdate) & (deathdate - ch.birthdate < 1))
+kids$event1 <- kids$event & (!kids$inf.death) # Births living at age 1
+kTab <- aggregate(kids[, c("event", "event1", "exposure")],
+                  kids[, c("age", "period", "cohort", "marAge", "hisclass", 
+                           "parish", "region", "urban")],
+                  FUN = sum)
+kTab$age <- factor(kTab$age, labels = c("20-24", "25-29", "30-34",
+                                        "35-39", "40-44", "45-49"))
+kTab$N <- 0
+kTab$V <- 0
+for (i in 1:6){
+    who <- kTab$age == levels(kTab$age)[i]
+    kTab$N[who] <- N[i]
+    kTab$V[who] <- V[i]
+}
+
+kids$age <- factor(kids$age, labels = c("20-24", "25-29", "30-34",
+                                        "35-39", "40-44", "45-49"))
+kids$N <- 0
+kids$V <- 0
+for (i in 1:6){
+    who <- kids$age == levels(kids$age)[i]
+    kids$N[who] <- N[i]
+    kids$V[who] <- V[i]
+}
+
+@
+ 
 \title{The effect of socioeconomic status on marital fertility during 
 the demographic transition, northern Sweden 1821--1950}
 \author{Göran Broström}
@@ -87,9 +139,305 @@ necessary result of the \emp{mortality decline}.
 \end{frame}
 
 
+\begin{frame}{Population development}
+  
+\includegraphics[width=11cm]{figure/plotpopsize-1}
+
+\end{frame}
+
+\begin{frame}{Marital fertility as a counting process}
+
+\includegraphics[width= 11cm]{figure/countbir-1}
+
+\end{frame}  
+
+\begin{frame}{The Coale-Trussel model}
+  
+\begin{equation*}
+\lambda(t) = M n(t) e^{m v(t)}, \quad 20 \le t < 50,
+\end{equation*}
+%% where the piecewise constant functions $n, v$ are given in
+%% Table~\ref{tab:cotr}. 
+
+%% %% <<coefsct, results='asis'>>=
+%% %% x <- cbind(N, V)
+%% %% colnames(x) <- c("n(t)", "v(t)")
+%% %% rownames(x) <- levels(kTab$age)
+%% %% xtable(x, digits = 3)
+%% %% @ 
+
+%%   \begin{center}
+%% \begin{tabular}{c|rrrrrr} \hline
+%%   t & 20--25 & 25--30 & 30--35 & 35--40 & 40--45 & 45--50 \\ \hline
+%%   n(t) & 0.460 & 0.431 & 0.395 & 0.322 & 0.167 & 0.024 \\
+%%   v(t) & 0.000 & -0.279 & -0.667 & -1.042 & -1.414 & -1.671 \\ \hline
+%% \end{tabular}
+%% \end{center}
+
+
+<<plottanv, fig.height=4>>=
+par(lwd = 2)
+plot(c(20, 25), c(0.460, 0.460), , type = "l", col = "blue", 
+     xlim = c(20, 50), ylim = c(-2, 0.5), xlab = "Age", ylab = "")
+abline(h = 0, lty = 3)
+lines(c(25, 30), c(0.431, 0.431), col = "blue")
+lines(c(30, 35), c(0.395, 0.395), col = "blue")
+lines(c(35, 40), c(0.322, 0.322), col = "blue")
+lines(c(40, 45), c(0.167, 0.167), col = "blue")
+lines(c(45, 50), c(0.024, 0.024), col = "blue")
+text(32, 0.2, "n(t)", col = "blue")
+#
+lines(c(20, 25), c(0, 0), col = "red")
+lines(c(25, 30), -c(0.279, 0.279), col = "red")
+lines(c(30, 35), -c(0.667, 0.667), col = "red")
+lines(c(35, 40), -c(1.042, 1.042), col = "red")
+lines(c(40, 45), -c(1.414, 1.414), col = "red")
+lines(c(45, 50), -c(1.671, 1.671), col = "red")
+text(32, -1.05, "v(t)", col = "red")
+@ 
+
+\end{frame}  
+
+\begin{frame}{Two examples, the Coale-Trussel distribution}
+
+<<plMm, fig.height = 4>>=
+N <- c(.460, .431, .395, .322, .167, .024)
+V <- c(0.0, -0.279, -0.667, -1.042, -1.414, -1.671)
+par(lwd = 2)
+oldpar <- par(mfrow = c(1, 2))
+## (0, 1):
+y <- cumsum(c(0, N)) * 5 ##* 0.637
+x <- seq(20, 50, by = 5)
+plot(x, y, type = "l", col = "blue", xlab = "Age", 
+     main = "Cumulative hazards", ylab = "", las = 1,
+     axes = FALSE)
+axis(1)
+axis(2, las = 1)
+axis(4, las = 1, at = c(0, 2, 4, 6, y[6]), 
+     labels = c("0", "2", "4", "6", "TFMR"))
+box()
+y <- cumsum(c(0, N * exp(V))) * 5 * 1.57
+lines(x, y, col = "red", lty = 2)
+text(26, 8.3, "(m = 1, M = 1.57)", col = "red", cex = 0.75)
+text(40, 4.8, "(m = 0, M = 1)", col = "blue", cex = 0.75)
+abline(h = 0)
+plot(c(20, 25), c(N[1], N[1]), col = "blue", type = "l", xlim = c(20, 50), ylim = c(0, 0.75), ylab = "", 
+     xlab = "Age", main = "Hazards", las = 1)
+axis(4, las = 1)
+for(i in 2:6){
+    lines(x[i:(i + 1)], c(N[i], N[i]), col = "blue")
+    lines(c(x[i], x[i]), N[(i-1):i], col = "blue", lty = 3)
+}
+y <- N * exp(V) * 1.57
+for(i in 1:6){
+    lines(x[i:(i + 1)], c(y[i], y[i]), col = "red", lty = 2)
+    lines(c(x[i+1], x[i+1]), y[i:(i+1)], col = "red", lty = 3)
+}
+abline(h = 0)
+par(oldpar)
+@
+  
+\end{frame}  
+
+\begin{frame}{Coale-Trussell model fit}
+  
+<<modelfit>>=
+source("R/valueCT.R")
+valueCT(kTab)
+@   
+
+\emp{Left panel:} 1851--1880; \emp{Right panel:} 1931--40.
+\end{frame}
+
+\begin{frame}{Data sources}
+  
+\begin{itemize}
+\item \emp{Demographic Data Base}, CEDAR, Umeå University   
+\begin{itemize}
+\item \emp{Skellefteå}, 1821--1950.
+\item \emp{Umeå}, 1901--1950.
+\end{itemize}
+\item Followed from \emp{age 20 or marriage} to \emp{age 50 or end of marriage}.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{The sampling frame}
+  
+<<lexis, fig.height = 3.3>>=
+plot(c(1851, 1951), c(50, 50), type = "l", xlim = c(1821, 1951), ylim = c(20, 50), col = "blue", 
+     xlab = "Year", ylab = "Age", axes = FALSE, las = 1)
+axis(1, at = c(1821, 1851, 1901, 1921, 1951))
+axis(2, las = 1)
+axis(4, las = 1)
+box()
+abline(h = 0)
+lines(c(1851, 1951), c(49.8, 49.8), col = "red")
+lines(c(1821, 1851), c(20, 50), col = "red")
+lines(c(1921, 1951), c(20, 50), col = "red", lty = 2)
+lines(c(1851, 1851), c(20, 50), col = "blue", lty = 2)
+lines(c(1821, 1921), c(20, 20), col = "red")
+lines(c(1851, 1951), c(20.2, 20), col = "blue")
+lines(c(1951, 1951), c(20, 50), col = "blue")
+text(1858, 35, "period", col = "blue")
+text(1925, 35, "cohort", col = "red")
+@   
+
+
+\end{frame}
+
+\begin{frame}{The raw data set}
+  
+\scriptsize
+
+<<sixrow,echo=FALSE,results='asis'>>=
+##load("data/kids.rda")
+kids$event <- as.logical(kids$event)
+library(xtable)
+fert1 <- kids.orig  ## KOLLA!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+fert1$enter <- round(fert1$enter, 3)
+fert1$exit <- round(fert1$exit, 3)
+#fert1 <- fert1[fert1$socpo != "1", ]
+#fert1$farmer <- as.numeric(fert1$socpo == "2")
+#fert1$birthdate <- fert1$birthdate
+x <- fert1[fert1$id == 233, c("id", "lopnr", "parish", 
+                              "hisclass", "birthdate", 
+                              "enter", "exit", "event", "inf.death")]
+x$birthdate <- as.character(toDate(x$birthdate))
+print(xtable(x, digits = c(0,0, 0,0, 0,3, 3, 3, 0, 0), caption = "Birth history of woman No. 233 (selected columns).", label = "tab:sixrow"), include.rownames = FALSE)
+@
+
+\begin{center}
+\begin{tabular}{rr}
+Number of women & 49\,090 \\
+Number of mothers & 37\,728 \\
+Number of live births & 138\,278 \\
+Live births per woman & 2.82 \\
+\end{tabular}
+\end{center}
+
+\end{frame}
+
+
+\begin{frame}{Variables}
+  \footnotesize
+\begin{description}
+%\item[region] Skellefteå or Umeå.
+%\item[urban] {\tt TRUE} if urban area, otherwise {\tt FALSE}.
+\item[parish] See map!
+\item[birthdate] Mother's birthdate.
+\item[hisclass] {\sc Hisclass}, grouped:
+  {\scriptsize
+  \begin{description}
+  \item[elite] The elite.
+  \item[middle] Middle class.
+  \item[farmer] Farmers.
+  \item[skilled] Skilled workers.
+  \item[lower skilled] Not so skilled workers.
+  \item[unskilled] Unskilled workers.  
+  \end{description}}  
+\item[cohort] Mother's birth cohort.
+\item[period] Calendar time period.
+  \item[marAge] Mother's age at marriage (grouped).
+\item[age] Mother's age at child's birth (grouped).
+\item[exposure] Interval length.
+\item[event] {\tt TRUE} if interval ends with a birth.
+\item[inf.death] Did the child die before age one?  
+\end{description}
+
+\end{frame}
+
+\begin{frame}{The Lexis split}
+  
+\includegraphics[width=11cm]{figure/aggre-1}
+
+In \emp{each sub-area} and for \emp{each combination} of covariates: 
+
+Calculate \emp{No.\ of {\tt event}s} and \emp{\tt total exposure} time.
+
+\end{frame}  
+
+\begin{frame}[fragile]{The data table}
+  \scriptsize
+The covariates:  
+<<compact,results='asis'>>=
+xtable(head(kTab[, names(kTab)[2:6]]))
+@   
+
+The response:
+<<compact2,results='asis'>>=
+xtable(head(kTab[, names(kTab)[-(2:8)]]), digits = c(rep(0, 4), 3,3,3)) 
+@ 
+Note: \emp{Sufficient statistics}!
+\end{frame}
+
+\begin{frame}{Exposure by hisclass and time period}
+
+<<hiscske>>=
+oldpar <- par(mfrow = c(1, 2))
+xx <- with(kTab[kTab$region == "ske", ], tapply(exposure, 
+                        list(period = period, hisclass = hisclass), 
+                        sum))
+yy <- round(prop.table(xx, 1) * 100, 1)
+zz <- t(yy[-(1:3), ])
+barplot(zz[6:1,], col = 6:1, las = 1, main = "Skellefteå", names.arg = c("1901-10", "1911-20", "1921-30", "1931-40", "1941-50"), ylab = "Per cent", las = 2)
+##xtable(yy[-1, ], digits = 1, caption = "Distribution of exposure over social class and time period, the Skellefteå ##region.", label = "tab:hiscske")
+##@ 
+
+##The corresponding information for the Umeå region is given in
+##Figure~\ref{fig:hiscume}. 
+
+##<<hiscume, fig.cap = "Exposure by hisclass and time period, Skelleftea. Hisclasses are ordered by number from bottom to top.", fig.scap = "Exposure by hisclass and time period, Umea.">>=
+##save(kTab, file = "kTab.rda")
+xx <- with(kTab[kTab$region == "ume", ], tapply(exposure, 
+                        list(period = period, hisclass = hisclass), 
+                        sum))
+yy <- round(prop.table(xx, 1) * 100, 1)
+zz <- t(yy[-(1:3), ])
+barplot(zz[6:1, ], col = 6:1, las = 1, main = "Umeå", 
+        names.arg = c("1901-10", "1911-20", "1921-30", 
+                      "1931-40", "1941-50"), 
+        ylab = "Per cent", las = 2)
+par(oldpar)
+@   
+
+Top: {\tt elite}; Bottom: {\tt unskilled}.
+
+\end{frame}  
+
+\begin{frame}[fragile]{Typical analysis: Poisson regression}
+  
+\begin{verbatim}
+fit <- glm(births ~ offset(log(exposure * N)) +  
+                    marAge * parish +
+               V * (marAge * period + 
+                    period * parish), 
+           family = poisson, data = kTab)
+df <- drop1(fit, test = "LRT")
+\end{verbatim}
+
+  {\scriptsize
+  
+<<sigthree, results='asis', echo = FALSE>>=
+fit <- glm(event ~ offset(log(exposure * N)) +
+               V * (marAge * period + 
+                    ##marAge * parish + 
+                    period * parish) +
+         V * parish + marAge * parish, 
+           family = poisson, data = kTab)
+df <- drop1(fit, test = "LRT")
+xtable(df)
+#length(fit$coef)
+@
+}
+
+This model contains \emp{216 estimated coefficients}!
+\end{frame}
 
 \begin{frame}{References}
+
   \bibliography{surv.bib}
+
 \end{frame}
 
 \end{document}
