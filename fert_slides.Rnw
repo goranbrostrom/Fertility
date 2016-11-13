@@ -23,8 +23,7 @@
 \bibliographystyle{apalike}
 
 <<setup, include = FALSE>>=
-knitr::opts_chunk$set(cache=TRUE,echo=FALSE,message=FALSE,warning=FALSE,comment=
-NA,fig.height = 4)##$
+knitr::opts_chunk$set(cache=TRUE,echo=FALSE,message=FALSE,warning=FALSE,comment= NA,fig.height = 4, fig.path="figslides/")##$
 @
 
 
@@ -109,7 +108,7 @@ on later \emp{child births} during the demographic transition?
 
 \begin{frame}{Where?}
   
-\includegraphics[height=8cm]{myfigs/skum17.pdf}
+\includegraphics[height=7cm]{myfigs/skum17.pdf}\includegraphics[height=7cm]{myfigs/sweden.pdf}  
 
 \end{frame}
 
@@ -432,6 +431,151 @@ xtable(df)
 }
 
 This model contains \emp{216 estimated coefficients}!
+\end{frame}
+
+\begin{frame}[fragile]{Farmers, 1931--1940}
+  
+\begin{verbatim}
+fit <- glm(event ~ offset(log(N * exposure)) + 
+           V + urban + marAge,
+           data = kTab, family = poisson,
+           subset = (hisclass == "farmer" & 
+                     period == "1931-1940"))
+
+\end{verbatim}
+
+<<tableexfit, results = 'asis'>>=
+fit <- glm(event ~ offset(log(N * exposure)) + V + marAge,
+           data = kTab, family = poisson,
+           subset = (hisclass == "farmer" & 
+                     period == "1931-1940"))
+#dr <- drop1(fit, test = "Chisq")
+x <- summary(fit)$coef[1:2, 1:2]
+x <- cbind(x, exp(x[, 1]))
+colnames(x) <- c("Coef", "s.e.", "exp(Coef)")
+xtable(round(x, 4), digits = 4)
+@
+  
+And \emp{$\hat{M} = 0.6880$} and \emp{$\hat{m} = 0.4989$}.
+\end{frame}
+
+\begin{frame}{M by hisclass and period}
+  
+<<plotmhc, fig.height = 5.5>>=
+source("R/getMmhc.R")
+y2 <- matrix(0, ncol = 8, nrow = 6) ## 'm'
+y1 <- matrix(0, ncol = 8, nrow = 6) ## 'M'
+##kTab <- kTab[kTab$region == "ske", ]
+pp <- levels(kTab$period)
+for (i in 2:8){
+    y2[, i] <- getMmhc(kTab[kTab$period == pp[i], ])[, 2]
+    y1[, i] <- getMmhc(kTab[kTab$period == pp[i], ])[, 1]
+}
+x <- c(1865, 1890, 1905, 1915, 1925, 1935, 1945)
+##oldpar <- par(mfrow = c(2, 1), las = 1)
+## 'M':
+plot(x, y1[1, -1], col = 1, type = "b", ylab = "M", ylim = c(0.4, 1.1),
+     axes = FALSE, xlab = "Period", xlim = c(1851, 1951), lwd = 3, main = 'M')
+axis(1, at = c(1851, x, 1950), las = 2)
+axis(2)
+axis(4)
+box()
+for (j in 2:6){
+    lines(x, y1[j, -1], col = j, type = "b", pch = j, lty = j, lwd = 3)
+}
+legend("bottomleft", legend = levels(kTab$hisclass), col = 1:6, pch = 1:6, lty = 1:6)
+@ 
+
+\end{frame}
+
+\begin{frame}{m by hisclass and period}
+<<plotMcoh,fig.height = 5.5>>=
+  ## 'm':
+plot(x, y2[1, -1], col = 1, type = "b", ylab = "m", ylim = c(-0.2, 1.3),
+     axes = FALSE, xlab = "Period", xlim = c(1851, 1951), lwd = 3, main = "m")
+axis(1, at = c(1851, x, 1950), las = 2)
+axis(2, las = 2, at = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0))
+axis(4, las = 2, at = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0))
+box()
+abline(h = 0)
+for (j in 2:6){
+    lines(x, y2[j, -1], col = j, type = "b", pch = j, lty = j, lwd = 3)
+}
+legend("topleft", legend = levels(kTab$hisclass), col = 1:6, pch = 1:6, lty = 1:6)
+par(oldpar)
+@
+
+
+\end{frame}  
+
+\begin{frame}{M by hisclass and cohort}
+  
+<<plotMcohhc, fig.cap = "Coale-Trussell's M and m by hisclass and cohort.", fig.height = 5.5>>=
+kohort <- kTab[!(kTab$cohort %in% c("1921-1940", "1941-1960")), ]
+kohort$cohort <- factor(kohort$cohort)
+y1 <- matrix(0, ncol = 5, nrow = 6)
+y2 <- matrix(0, ncol = 5, nrow = 6)
+##kTab <- kTab[kTab$region == "ske", ]
+pp <- levels(kohort$cohort)
+for (i in 1:5){
+    y1[, i] <- getMmhc(kohort[kohort$cohort == pp[i], ])[, 1]
+    y2[, i] <- getMmhc(kohort[kohort$cohort == pp[i], ])[, 2]
+}
+x <- c(1830, 1850, 1870, 1890, 1910)
+#oldpar = par(mfrow = c(2, 1))
+## M:
+plot(x, y1[1, ], col = 1, type = "b", ylab = "M", ylim = c(0.5, 1.3),
+     axes = FALSE, xlab = "Cohort", xlim = c(1821, 1921), lwd = 3, main = 'M')
+axis(1, at = c(1821, x, 1920), las = 2)
+axis(2, las = 1)
+axis(4, las = 1)
+box()
+for (j in 2:6){
+    lines(x, y1[j, ], col = j, type = "b", pch = j, lty = j, lwd = 3)
+}
+legend("bottomright", legend = levels(kohort$hisclass), 
+col = 1:6, pch = 1:6, lty = 1:6)
+@ 
+
+\end{frame}  
+
+\begin{frame}{m by hisclass and cohort}
+<<plotmcohhc,fig.height=5.5>>=
+
+## m:
+plot(x, y2[1, ], col = 1, type = "b", ylab = "m", ylim = c(-0.2, 1.3),
+     axes = FALSE, xlab = "Cohort", xlim = c(1821, 1921), lwd = 3, main = 'm')
+axis(1, at = c(1821, x, 1920), las = 2)
+axis(2, las = 1)
+axis(4, las = 1)
+box()
+for (j in 2:6){
+    lines(x, y2[j, ], col = j, type = "b", pch = j, lty = j, lwd = 3)
+}
+legend("topleft", legend = levels(kohort$hisclass), col = 1:6, pch = 1:6, lty = 1:6)
+@
+  
+\end{frame}  
+
+\begin{frame}{TMFR by hisclass and period}
+  
+\includegraphics[width=11cm,height=8cm]{figure/plotmhcTMFR-1}
+
+\end{frame}
+
+\begin{frame}{TMFR by hisclass and cohort}
+  
+\includegraphics[width=11cm,height=8cm]{figure/plotcohortTMFR-1}
+
+\end{frame}
+
+\begin{frame}{Number of births per woman}
+  
+\includegraphics[width=11cm]{figure/cohorttmfr-1}
+  
+Average fertility period length: 
+
+{\tt farmers}: \emp{18.2}, {\tt non-farmers}: \emp{14.7} years.
 \end{frame}
 
 \begin{frame}{References}
