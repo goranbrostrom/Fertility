@@ -155,6 +155,8 @@ necessary result of the \emp{mortality decline}.
 \begin{equation*}
 \lambda(t) = M n(t) e^{m v(t)}, \quad 20 \le t < 50,
 \end{equation*}
+
+\citet{ac71,ct78}.
 %% where the piecewise constant functions $n, v$ are given in
 %% Table~\ref{tab:cotr}. 
 
@@ -415,6 +417,7 @@ fit <- glm(births ~ offset(log(exposure * N)) +
 df <- drop1(fit, test = "LRT")
 \end{verbatim}
 
+\citet{gb85,hoem87}.  
   {\scriptsize
   
 <<sigthree, results='asis', echo = FALSE>>=
@@ -445,7 +448,7 @@ fit <- glm(event ~ offset(log(N * exposure)) +
 \end{verbatim}
 
 <<tableexfit, results = 'asis'>>=
-fit <- glm(event ~ offset(log(N * exposure)) + V + marAge,
+fit <- glm(event ~ offset(log(N * exposure)) + V + urban,
            data = kTab, family = poisson,
            subset = (hisclass == "farmer" & 
                      period == "1931-1940"))
@@ -578,10 +581,59 @@ Average fertility period length:
 {\tt farmers}: \emp{18.2}, {\tt non-farmers}: \emp{14.7} years.
 \end{frame}
 
+
+\begin{frame}{Surviving (one year) births, m}
+  
+\includegraphics[width=11cm]{figure/plotmhc1-1}  
+  
+\end{frame}  
+
+%\begin{frame}{Surviving (one year) births, M}
+  
+%\includegraphics{plotmhc1-1}  
+  
+%\end{frame}  
+
+\begin{frame}{Surviving (one year) births, TMFR}
+  
+\includegraphics[width=11cm]{figure/plotmhcTMFR1-1}  
+  
+\end{frame}  
+
 \begin{frame}{References}
 
+\scriptsize  
   \bibliography{surv.bib}
 
 \end{frame}
 
+\begin{frame}{Conclusion}
+ 
+\begin{itemize}  
+\item The fertility decline \emp{starts} in the \emp{upper classes} in the
+  decades prior to the turn of the century.  
+
+\item The \emp{farming} part of the population is characterized by a relatively \emp{high
+fertility in high ages} until the end of the study period. 
+
+\item \emp{Spacing or stopping?} Not definitively settled, but the stopping
+  measure, Coale-Trussell's ``little'' \emp{\tt m} shows a dramatic change
+  over time. 
+
+\item The \emp{effect of} the \emp{declining infant mortality} on the
+  stopping or spacing behavior in fertility is \emp{minor}. 
+
+\end{itemize}
+
+\end{frame}  
+
+\begin{frame}{Future research}
+
+\begin{itemize}  
+\item The interplay between mother's age and duration in marriage.
+\item  Use "time in marriage" as the basic time scale instead of "age", but how that would effect the spacing and stopping models is still in the open. 
+\item  One option is to utilize a two-dimensional basic time scale. 
+\end{itemize}
+
+\end{frame}  
 \end{document}
