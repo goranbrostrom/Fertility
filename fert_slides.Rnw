@@ -23,12 +23,63 @@
 \bibliographystyle{apalike}
 
 <<setup, include = FALSE>>=
-knitr::opts_chunk$set(cache=TRUE,echo=FALSE,message=FALSE,warning=FALSE,comment=
-NA,fig.height = 4)##$
+knitr::opts_chunk$set(cache=TRUE,echo=FALSE,message=FALSE,warning=FALSE,comment= NA,fig.height = 4, fig.path="figslides/")##$
 @
 
 
-\title{The effect of socioeconomic status on marital fertility during 
+<<getdata>>=
+load("data/kids.rda")
+
+kids.orig <- kids ## Nice to have later!
+
+library(skum)
+##library(eha)
+## Factor hisclass into six groups:
+kids$hisclass <- cut(kids$hisclass, c(0, 1.5, 2.5, 3.5, 4.5, 5.5, 7.5),
+                     labels = c("elite", "middle", "farmer", "skilled",
+                                "lower_skilled", "unskilled"))
+##kids <- age.window(kids, c(20, 50))
+##kids <- kids[kids$birthdate > 1801, ]
+N <- c(.460, .431, .395, .322, .167, .024)
+V <- c(0.0, -0.279, -0.667, -1.042, -1.414, -1.671)
+## Constants in the Coale-Trussell model [20(5)50]
+## Put on 'cohort':
+kids$cohort <- cut(kids$birthdate, seq(1801, 1941, by = 20), labels = c("1821-1840", "1841-1860", "1861-1880", "1881-1900", "1901-1920", "1921-1940", "1941-1960"))
+source("R/addPer.R")
+kids <- addPer(kids, cuts = c(1821, 1851, 1881, seq(1901, 1951, by = 10)))
+kids$marAge <- cut(kids$from, c(15, 25, 30, 35, 50))
+source("R/ageGroup.R")
+kids <- ageGroup(kids, seq(20, 50, by = 5))
+kids$exposure <- kids$exit - kids$enter
+##kids$inf.death <- with(kids, !is.na(deathdate) & (deathdate - ch.birthdate < 1))
+kids$event1 <- kids$event & (!kids$inf.death) # Births living at age 1
+kTab <- aggregate(kids[, c("event", "event1", "exposure")],
+                  kids[, c("age", "period", "cohort", "marAge", "hisclass",
+                           "parish", "region", "urban")],
+                  FUN = sum)
+kTab$age <- factor(kTab$age, labels = c("20-24", "25-29", "30-34",
+                                        "35-39", "40-44", "45-49"))
+kTab$N <- 0
+kTab$V <- 0
+for (i in 1:6){
+    who <- kTab$age == levels(kTab$age)[i]
+    kTab$N[who] <- N[i]
+    kTab$V[who] <- V[i]
+}
+
+kids$age <- factor(kids$age, labels = c("20-24", "25-29", "30-34",
+                                        "35-39", "40-44", "45-49"))
+kids$N <- 0
+kids$V <- 0
+for (i in 1:6){
+    who <- kids$age == levels(kids$age)[i]
+    kids$N[who] <- N[i]
+    kids$V[who] <- V[i]
+}
+
+@
+
+\title{The effect of socioeconomic status on marital fertility during
 the demographic transition, northern Sweden 1821--1950}
 \author{Göran Broström}
 \date{19 October, 2016}
@@ -41,55 +92,600 @@ the demographic transition, northern Sweden 1821--1950}
 \begin{frame}{What?}
 
 \begin{itemize}
-\item \emp{What} is the impact of the family's \emp{socioeconomic status} at \emp{marriage}
+\item \emp{What} is the impact of the family's \emp{{\sc Hisclass} at marriage}
 on later \emp{child births} during the demographic transition?
 
-\item \emp{What} socioeconomic class(es) (if any) are \emp{forerunners} in the
+\item \emp{What} {\sc Hisclass}(es) (if any) are \emp{forerunners} in the
   transition from high to low fertility?
+
+\item Was the fertility transition driven by \emp{stopping} or \emp{spacing}?
+
+  \begin{itemize}
+    \item The \emp{Coale-Trussell} model \citep{ct78,ac71}.
+\end{itemize}
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}{What is {\sc Hisclass}?}
+
+An ordering (and grouping) of \emp{occupation}:
+
+  \begin{description}
+  \item[elite] The elite.
+  \item[middle] Middle class.
+  \item[farmer] Farmers.
+  \item[skilled] Skilled workers.
+  \item[lower skilled] Not so skilled workers.
+  \item[unskilled] Unskilled workers.
+  \end{description}
+
+\emp{\underline{Note:}} This is a \emp{grouped} version of the
+\emp{original} version of {\sc Hisclass} with \emp{12 levels}.
+\end{frame}
+
+\begin{frame}{Exposure by hisclass and region, 1901--1950}
+
+<<hiscske>>=
+oldpar <- par(mfrow = c(1, 2))
+xx <- with(kTab[kTab$region == "ske", ], tapply(exposure,
+                        list(period = period, hisclass = hisclass),
+                        sum))
+yy <- round(prop.table(xx, 1) * 100, 1)
+zz <- t(yy[-(1:3), ])
+barplot(zz[6:1,], col = 6:1, las = 1, main = "Skellefteå", names.arg = c("1901-10", "1911-20", "1921-30", "1931-40", "1941-50"), ylab = "Per cent", las = 2)
+##xtable(yy[-1, ], digits = 1, caption = "Distribution of exposure over social class and time period, the Skellefteå ##region.", label = "tab:hiscske")
+##@
+
+##The corresponding information for the Umeå region is given in
+##Figure~\ref{fig:hiscume}.
+
+##<<hiscume, fig.cap = "Exposure by hisclass and time period, Skelleftea. Hisclasses are ordered by number from bottom to top.", fig.scap = "Exposure by hisclass and time period, Umea.">>=
+##save(kTab, file = "kTab.rda")
+xx <- with(kTab[kTab$region == "ume", ], tapply(exposure,
+                        list(period = period, hisclass = hisclass),
+                        sum))
+yy <- round(prop.table(xx, 1) * 100, 1)
+zz <- t(yy[-(1:3), ])
+barplot(zz[6:1, ], col = 6:1, las = 1, main = "Umeå",
+        names.arg = c("1901-10", "1911-20", "1921-30",
+                      "1931-40", "1941-50"),
+        ylab = "Per cent", las = 2)
+par(oldpar)
+@
+
+Top: {\tt elite}; Bottom: {\tt unskilled}.
+
+\end{frame}
+
+\begin{frame}{Why?}
+
+\begin{itemize}
+\item \emp{\citet{drsc14}} and \emp{\citet{tbdr14}}
+discussed  Swedish circumstances (Scania).
+\begin{itemize}
+  \item Seminar in Alghero, Sardinia 2012: ``Socio-economic Stratification
+    and Fertility before, during and after the Demographic Transition''.
+    \begin{itemize}
+      \item Published in a \emp{Demographic Research} special issue.
+      \end{itemize}
+    \end{itemize}
+\item An old theme
+  \begin{itemize}
+\item \emp{\citet{kom97}} discussed contemporary explanation models of the
+    fertility
+transition and argued that there cannot be one explanation alone.
+\item etc.
+\end{itemize}
+\item One \emp{perhaps} convincing theory is that the \emp{fertility decline} was a
+necessary result of the \emp{mortality decline}?
+
 \end{itemize}
 
 \end{frame}
 
 \begin{frame}{Where?}
-  
-\includegraphics[height=5cm]{myfigs/geo_we.pdf}\includegraphics[height=7cm]{myfigs/sweden.pdf}  
-\end{frame}  
+
+\includegraphics[height=5cm]{myfigs/geo_we.pdf}\includegraphics[height=7cm]{myfigs/sweden.pdf}
+\end{frame}
 
 \begin{frame}{Where?}
-  
-\includegraphics[height=8cm]{myfigs/skum17.pdf}
+
+\begin{columns}
+
+\begin{column}{0.5\textwidth}
+
+\includegraphics[height=7cm]{myfigs/skum_latest.pdf}
+\end{column}
+
+\begin{column}{0.5\textwidth}
+
+Skellefteå:
+
+\begin{itemize}
+
+\item Small town, heavy industry in the nineteenth century.
+
+\end{itemize}
+
+Umeå:
+
+\begin{itemize}
+
+\item Not so small town, older. Center for administration, education, and military.
+
+\end{itemize}
+
+Rural areas:
+
+\begin{itemize}
+
+\item Very similar: Small farms dominating.
+
+\end{itemize}
+
+\end{column}
+\end{columns}
+%\includegraphics[height=7cm]{myfigs/sweden.pdf}
+
+\end{frame}
+
+
+\begin{frame}{Data sources}
+
+\begin{itemize}
+\item \emp{Demographic Data Base}, CEDAR, Umeå University
+\begin{itemize}
+\item \emp{Skellefteå}, 1821--1950.
+\item \emp{Umeå}, 1901--1950.
+\end{itemize}
+\item Followed from \emp{age 20 or marriage} to \emp{age 50 or end of marriage}.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Population development}
+
+\includegraphics[width=11cm]{figure/plotpopsize-1}
 
 \end{frame}
 
 \begin{frame}{When?}
-  
+
 \includegraphics[width=11cm]{figure/lexis-1.pdf}
-  
-\end{frame}  
 
-\begin{frame}{Background}
+\end{frame}
 
-\begin{itemize}  
-\item \emp{\citet{kom97}} discussed contemporary explanation models of the
-    fertility 
-transition and argued that there cannot be one explanation alone.
 
-\item \emp{\citet{drsc14}} and \emp{\citet{tbdr14}}  
-discussed  Swedish circumstances (Scania).
+\begin{frame}{Marital fertility as a counting process}
+
+\includegraphics[width= 11cm]{figure/countbir-1}
+
 \begin{itemize}
-  \item Workshop in Alghero, Sardinia 2012.
-    \end{itemize}
-\item One \emp{perhaps} convincing theory is that the \emp{fertility decline} was a
-necessary result of the \emp{mortality decline}. 
+\item \emp{49\,090} such female histories, of which \emp{11\,362} are \emp{empty}.
+\item We want to estimate the \emp{intensity} of this process.
+\end{itemize}
+
+
+\end{frame}
+
+\begin{frame}{The Coale-Trussel model}
+\emp{
+\begin{equation*}
+\lambda(t) = M n(t) e^{m v(t)}, \quad 20 \le t < 50,
+\end{equation*}
+}
+\citet{ac71,ct78}.
+%% where the piecewise constant functions $n, v$ are given in
+%% Table~\ref{tab:cotr}.
+
+%% %% <<coefsct, results='asis'>>=
+%% %% x <- cbind(N, V)
+%% %% colnames(x) <- c("n(t)", "v(t)")
+%% %% rownames(x) <- levels(kTab$age)
+%% %% xtable(x, digits = 3)
+%% %% @
+
+%%   \begin{center}
+%% \begin{tabular}{c|rrrrrr} \hline
+%%   t & 20--25 & 25--30 & 30--35 & 35--40 & 40--45 & 45--50 \\ \hline
+%%   n(t) & 0.460 & 0.431 & 0.395 & 0.322 & 0.167 & 0.024 \\
+%%   v(t) & 0.000 & -0.279 & -0.667 & -1.042 & -1.414 & -1.671 \\ \hline
+%% \end{tabular}
+%% \end{center}
+
+
+<<plottanv, fig.height=4>>=
+par(lwd = 2)
+plot(c(20, 25), c(0.460, 0.460), , type = "l", col = "blue",
+     xlim = c(20, 50), ylim = c(-2, 0.5), xlab = "Age", ylab = "")
+abline(h = 0, lty = 3)
+lines(c(25, 30), c(0.431, 0.431), col = "blue")
+lines(c(30, 35), c(0.395, 0.395), col = "blue")
+lines(c(35, 40), c(0.322, 0.322), col = "blue")
+lines(c(40, 45), c(0.167, 0.167), col = "blue")
+lines(c(45, 50), c(0.024, 0.024), col = "blue")
+text(32, 0.2, "n(t)", col = "blue")
+#
+lines(c(20, 25), c(0, 0), col = "red")
+lines(c(25, 30), -c(0.279, 0.279), col = "red")
+lines(c(30, 35), -c(0.667, 0.667), col = "red")
+lines(c(35, 40), -c(1.042, 1.042), col = "red")
+lines(c(40, 45), -c(1.414, 1.414), col = "red")
+lines(c(45, 50), -c(1.671, 1.671), col = "red")
+text(32, -1.05, "v(t)", col = "red")
+@
+
+\end{frame}
+
+\begin{frame}{Two examples, the Coale-Trussel distribution}
+
+<<plMm, fig.height = 4>>=
+N <- c(.460, .431, .395, .322, .167, .024)
+V <- c(0.0, -0.279, -0.667, -1.042, -1.414, -1.671)
+par(lwd = 2)
+oldpar <- par(mfrow = c(1, 2))
+## (0, 1):
+y <- cumsum(c(0, N)) * 5 ##* 0.637
+x <- seq(20, 50, by = 5)
+plot(x, y, type = "l", col = "blue", xlab = "Age",
+     main = "Cumulative hazards", ylab = "", las = 1,
+     axes = FALSE)
+axis(1)
+axis(2, las = 1)
+axis(4, las = 1, at = c(0, 2, 4, 6, y[6]),
+     labels = c("0", "2", "4", "6", "TFMR"))
+box()
+y <- cumsum(c(0, N * exp(V))) * 5 * 1.57
+lines(x, y, col = "red", lty = 2)
+text(26, 8.3, "(m = 1, M = 1.57)", col = "red", cex = 0.75)
+text(40, 4.8, "(m = 0, M = 1)", col = "blue", cex = 0.75)
+abline(h = 0)
+plot(c(20, 25), c(N[1], N[1]), col = "blue", type = "l", xlim = c(20, 50), ylim = c(0, 0.75), ylab = "",
+     xlab = "Age", main = "Hazards", las = 1)
+axis(4, las = 1)
+for(i in 2:6){
+    lines(x[i:(i + 1)], c(N[i], N[i]), col = "blue")
+    lines(c(x[i], x[i]), N[(i-1):i], col = "blue", lty = 3)
+}
+y <- N * exp(V) * 1.57
+for(i in 1:6){
+    lines(x[i:(i + 1)], c(y[i], y[i]), col = "red", lty = 2)
+    lines(c(x[i+1], x[i+1]), y[i:(i+1)], col = "red", lty = 3)
+}
+abline(h = 0)
+par(oldpar)
+@
+
+\end{frame}
+
+\begin{frame}{Coale-Trussell model fit}
+
+<<modelfit>>=
+source("R/valueCT.R")
+valueCT(kTab)
+@
+
+\emp{Left panel:} 1851--1880; \emp{Right panel:} 1931--40.
+\end{frame}
+
+
+
+\begin{frame}{The raw data set}
+
+\scriptsize
+
+<<sixrow,echo=FALSE,results='asis'>>=
+##load("data/kids.rda")
+kids$event <- as.logical(kids$event)
+library(xtable)
+fert1 <- kids.orig  ## KOLLA!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+fert1$enter <- round(fert1$enter, 3)
+fert1$exit <- round(fert1$exit, 3)
+#fert1 <- fert1[fert1$socpo != "1", ]
+#fert1$farmer <- as.numeric(fert1$socpo == "2")
+#fert1$birthdate <- fert1$birthdate
+x <- fert1[fert1$id == 233, c("id", "lopnr", "parish",
+                              "hisclass", "birthdate",
+                              "enter", "exit", "event", "inf.death")]
+x$birthdate <- as.character(toDate(x$birthdate))
+print(xtable(x, digits = c(0,0, 0,0, 0,3, 3, 3, 0, 0), caption = "Birth history of woman No. 233 (selected columns).", label = "tab:sixrow"), include.rownames = FALSE)
+@
+
+\begin{center}
+\begin{tabular}{rr}
+Number of women & 49\,090 \\
+Number of mothers & 37\,728 \\
+Number of live births & 138\,278 \\
+Live births per woman & 2.82 \\
+\end{tabular}
+\end{center}
+
+\end{frame}
+
+
+\begin{frame}{Variables}
+  \footnotesize
+\begin{description}
+%\item[region] Skellefteå or Umeå.
+%\item[urban] {\tt TRUE} if urban area, otherwise {\tt FALSE}.
+\item[parish] See map!
+\item[birthdate] Mother's birthdate.
+\item[hisclass] {\sc Hisclass}, grouped:
+  {\scriptsize
+  \begin{description}
+  \item[elite] The elite.
+  \item[middle] Middle class.
+  \item[farmer] Farmers.
+  \item[skilled] Skilled workers.
+  \item[lower skilled] Not so skilled workers.
+  \item[unskilled] Unskilled workers.
+  \end{description}}
+\item[cohort] Mother's birth cohort.
+\item[period] Calendar time period.
+  \item[marAge] Mother's age at marriage (grouped).
+\item[age] Mother's age at child's birth (grouped).
+\item[exposure] Interval length.
+\item[event] {\tt TRUE} if interval ends with a birth.
+\item[inf.death] Did the child die before age one?
+\end{description}
+
+\end{frame}
+
+\begin{frame}{The Lexis split}
+
+\includegraphics[width=11cm]{figure/aggre-1}
+
+In \emp{each sub-area} and for \emp{each combination} of covariates:
+
+Calculate \emp{No.\ of {\tt event}s} and \emp{\tt total exposure} time.
+
+\end{frame}
+
+\begin{frame}[fragile]{The data table}
+  \scriptsize
+The covariates:
+<<compact,results='asis'>>=
+xtable(head(kTab[, names(kTab)[2:6]]))
+@
+
+The response:
+<<compact2,results='asis'>>=
+xtable(head(kTab[, names(kTab)[-(2:8)]]), digits = c(rep(0, 4), 3,3,3))
+@
+Note: \emp{Sufficient statistics}!
+\end{frame}
+
+
+\begin{frame}[fragile]{Typical analysis: Poisson regression}
+
+\begin{verbatim}
+fit <- glm(births ~ offset(log(exposure * N)) +
+                    marAge * parish +
+               V * (marAge * period +
+                    period * parish),
+           family = poisson, data = kTab)
+df <- drop1(fit, test = "LRT")
+\end{verbatim}
+
+\citet{gb85,hoem87}.
+  {\scriptsize
+
+<<sigthree, results='asis', echo = FALSE>>=
+fit <- glm(event ~ offset(log(exposure * N)) +
+               V * (marAge * period +
+                    ##marAge * parish +
+                    period * parish) +
+         V * parish + marAge * parish,
+           family = poisson, data = kTab)
+df <- drop1(fit, test = "LRT")
+xtable(df)
+#length(fit$coef)
+@
+}
+
+This model contains \emp{216 estimated coefficients}!
+\end{frame}
+
+\begin{frame}[fragile]{Farmers, 1931--1940}
+
+\begin{verbatim}
+fit <- glm(event ~ offset(log(N * exposure)) +
+           V + urban + marAge,
+           data = kTab, family = poisson,
+           subset = (hisclass == "farmer" &
+                     period == "1931-1940"))
+
+\end{verbatim}
+
+<<tableexfit, results = 'asis'>>=
+fit <- glm(event ~ offset(log(N * exposure)) + V + urban,
+           data = kTab, family = poisson,
+           subset = (hisclass == "farmer" &
+                     period == "1931-1940"))
+#dr <- drop1(fit, test = "Chisq")
+x <- summary(fit)$coef[1:2, 1:2]
+x <- cbind(x, exp(x[, 1]))
+colnames(x) <- c("Coef", "s.e.", "exp(Coef)")
+xtable(round(x, 4), digits = 4)
+@
+
+And \emp{$\hat{M} = 0.6880$} and \emp{$\hat{m} = 0.4989$}.
+\end{frame}
+
+\begin{frame}{M by hisclass and period}
+
+<<plotmhc, fig.height = 5.5>>=
+source("R/getMmhc.R")
+y2 <- matrix(0, ncol = 8, nrow = 6) ## 'm'
+y1 <- matrix(0, ncol = 8, nrow = 6) ## 'M'
+##kTab <- kTab[kTab$region == "ske", ]
+pp <- levels(kTab$period)
+for (i in 2:8){
+    y2[, i] <- getMmhc(kTab[kTab$period == pp[i], ])[, 2]
+    y1[, i] <- getMmhc(kTab[kTab$period == pp[i], ])[, 1]
+}
+x <- c(1865, 1890, 1905, 1915, 1925, 1935, 1945)
+##oldpar <- par(mfrow = c(2, 1), las = 1)
+## 'M':
+plot(x, y1[1, -1], col = 1, type = "b", ylab = "M", ylim = c(0.4, 1.1),
+     axes = FALSE, xlab = "Period", xlim = c(1851, 1951), lwd = 3, main = 'M')
+axis(1, at = c(1851, x, 1950), las = 2)
+axis(2)
+axis(4)
+box()
+for (j in 2:6){
+    lines(x, y1[j, -1], col = j, type = "b", pch = j, lty = j, lwd = 3)
+}
+legend("bottomleft", legend = levels(kTab$hisclass), col = 1:6, pch = 1:6, lty = 1:6)
+@
+
+\end{frame}
+
+\begin{frame}{m by hisclass and period}
+<<plotMcoh,fig.height = 5.5>>=
+  ## 'm':
+plot(x, y2[1, -1], col = 1, type = "b", ylab = "m", ylim = c(-0.2, 1.3),
+     axes = FALSE, xlab = "Period", xlim = c(1851, 1951), lwd = 3, main = "m")
+axis(1, at = c(1851, x, 1950), las = 2)
+axis(2, las = 2, at = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0))
+axis(4, las = 2, at = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0))
+box()
+abline(h = 0)
+for (j in 2:6){
+    lines(x, y2[j, -1], col = j, type = "b", pch = j, lty = j, lwd = 3)
+}
+legend("topleft", legend = levels(kTab$hisclass), col = 1:6, pch = 1:6, lty = 1:6)
+par(oldpar)
+@
+
+
+\end{frame}
+
+\begin{frame}{M by hisclass and cohort}
+
+<<plotMcohhc, fig.cap = "Coale-Trussell's M and m by hisclass and cohort.", fig.height = 5.5>>=
+kohort <- kTab[!(kTab$cohort %in% c("1921-1940", "1941-1960")), ]
+kohort$cohort <- factor(kohort$cohort)
+y1 <- matrix(0, ncol = 5, nrow = 6)
+y2 <- matrix(0, ncol = 5, nrow = 6)
+##kTab <- kTab[kTab$region == "ske", ]
+pp <- levels(kohort$cohort)
+for (i in 1:5){
+    y1[, i] <- getMmhc(kohort[kohort$cohort == pp[i], ])[, 1]
+    y2[, i] <- getMmhc(kohort[kohort$cohort == pp[i], ])[, 2]
+}
+x <- c(1830, 1850, 1870, 1890, 1910)
+#oldpar = par(mfrow = c(2, 1))
+## M:
+plot(x, y1[1, ], col = 1, type = "b", ylab = "M", ylim = c(0.5, 1.3),
+     axes = FALSE, xlab = "Cohort", xlim = c(1821, 1921), lwd = 3, main = 'M')
+axis(1, at = c(1821, x, 1920), las = 2)
+axis(2, las = 1)
+axis(4, las = 1)
+box()
+for (j in 2:6){
+    lines(x, y1[j, ], col = j, type = "b", pch = j, lty = j, lwd = 3)
+}
+legend("bottomright", legend = levels(kohort$hisclass),
+col = 1:6, pch = 1:6, lty = 1:6)
+@
+
+\end{frame}
+
+\begin{frame}{m by hisclass and cohort}
+<<plotmcohhc,fig.height=5.5>>=
+
+## m:
+plot(x, y2[1, ], col = 1, type = "b", ylab = "m", ylim = c(-0.2, 1.3),
+     axes = FALSE, xlab = "Cohort", xlim = c(1821, 1921), lwd = 3, main = 'm')
+axis(1, at = c(1821, x, 1920), las = 2)
+axis(2, las = 1)
+axis(4, las = 1)
+box()
+for (j in 2:6){
+    lines(x, y2[j, ], col = j, type = "b", pch = j, lty = j, lwd = 3)
+}
+legend("topleft", legend = levels(kohort$hisclass), col = 1:6, pch = 1:6, lty = 1:6)
+@
+
+\end{frame}
+
+\begin{frame}{TMFR by hisclass and period}
+
+\includegraphics[width=11cm,height=8cm]{figure/plotmhcTMFR-1}
+
+\end{frame}
+
+\begin{frame}{TMFR by hisclass and cohort}
+
+\includegraphics[width=11cm,height=8cm]{figure/plotcohortTMFR-1}
+
+\end{frame}
+
+\begin{frame}{Number of births per woman}
+
+\includegraphics[width=11cm]{figure/cohorttmfr-1}
+
+Average fertility period length:
+
+{\tt farmers}: \emp{18.2}, {\tt non-farmers}: \emp{14.7} years.
+\end{frame}
+
+
+\begin{frame}{Surviving (one year) births, m}
+
+\includegraphics[width=11cm]{figure/plotmhc1-1}
+
+\end{frame}
+
+%\begin{frame}{Surviving (one year) births, M}
+
+%\includegraphics{plotmhc1-1}
+
+%\end{frame}
+
+\begin{frame}{Surviving (one year) births, TMFR}
+
+\includegraphics[width=11cm]{figure/plotmhcTMFR1-1}
+
+\end{frame}
+
+\begin{frame}{References}
+
+\scriptsize
+  \bibliography{surv.bib}
+
+\end{frame}
+
+\begin{frame}{Conclusion}
+
+\begin{itemize}
+\item The fertility decline \emp{starts} in the \emp{upper classes} in the
+  decades prior to the turn of the century.
+
+\item The \emp{farming} part of the population is characterized by a relatively \emp{high
+fertility in high ages} until the end of the study period.
+
+\item \emp{Spacing or stopping?} Not definitively settled, but the stopping
+  measure, Coale-Trussell's ``little'' \emp{\tt m} shows a dramatic change
+  over time.
+
+\item The \emp{effect of} the \emp{declining infant mortality} on the
+  stopping or spacing behavior in fertility is \emp{minor}.
 
 \end{itemize}
 
 \end{frame}
 
+\begin{frame}{Future research}
 
+\begin{itemize}
+\item The interplay between mother's age and duration in marriage.
+\item  Use "time in marriage" as the basic time scale instead of "age", but how that would effect the spacing and stopping models is still in the open.
+\item  One option is to utilize a two-dimensional basic time scale.
+\end{itemize}
 
-\begin{frame}{References}
-  \bibliography{surv.bib}
 \end{frame}
-
 \end{document}
